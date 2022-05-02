@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:os_tracker/screens/home_screen.dart';
+import 'package:os_controller/screens/home_screen.dart';
 //import 'package:bitsdojo_window/bitsdojo_window.dart';
 
 void main() {

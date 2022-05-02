@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:os_tracker/ui/colors.dart';
-import 'package:os_tracker/utils/service_order.dart';
+import 'package:os_controller/ui/colors.dart';
+import 'package:os_controller/utils/service_order.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
