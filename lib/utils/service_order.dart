@@ -25,7 +25,7 @@ class _ServiceOrder extends State<ServiceOrder> {
           DataCell(Text('JP Cornin')),
           DataCell(Text('2021-03-01')),
           DataCell(Text('Backlog')),
-          DataCell(Text('Flamengo')),
+          DataCell(Text('Flamengo'))
         ])
       ],
     ));

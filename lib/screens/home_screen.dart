@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:os_controller/screens/create_os.dart';
 import 'package:os_controller/ui/colors.dart';
 import 'package:os_controller/utils/service_order.dart';
 
@@ -26,7 +27,14 @@ class _HomeScreenState extends State<HomeScreen> {
           centerTitle: true,
           title: const Text("If u read this u corno man!"),
           actions: [
-            IconButton(onPressed: () {}, icon: const Icon(Icons.settings))
+            IconButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => CreateOSForm()),
+                  );
+                },
+                icon: const Icon(Icons.plus_one_outlined))
           ],
         ),
         body: ShowOsTable());
