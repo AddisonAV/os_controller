@@ -11,7 +11,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  Widget ShowOsTable() {
+  Widget showOsTable() {
     return Column(
       children: const [ServiceOrder(), ServiceOrder()],
     );
@@ -37,6 +37,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 icon: const Icon(Icons.plus_one_outlined))
           ],
         ),
-        body: ShowOsTable());
+        body: showOsTable());
   }
 }
