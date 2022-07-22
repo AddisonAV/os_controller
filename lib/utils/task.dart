@@ -1,15 +1,17 @@
+// ignore_for_file: constant_identifier_names
+
 import 'package:flutter/material.dart';
 
 enum Status { BACKLOG, WORKING, FIXING, PAPPROVAL, PPAYMANT, DONE, PAUSED }
 
-class ServiceOrder extends StatefulWidget {
-  const ServiceOrder({Key? key}) : super(key: key);
+class Task extends StatefulWidget {
+  const Task({Key? key}) : super(key: key);
 
   @override
-  State<ServiceOrder> createState() => _ServiceOrder();
+  State<Task> createState() => _Task();
 }
 
-class _ServiceOrder extends State<ServiceOrder> {
+class _Task extends State<Task> {
   @override
   Widget build(BuildContext context) {
     return Center(

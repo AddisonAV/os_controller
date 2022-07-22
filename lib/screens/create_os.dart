@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 class CreateOSForm extends StatelessWidget {
   CreateOSForm({Key? key}) : super(key: key);
 
-  TextEditingController _name = TextEditingController();
+  final TextEditingController _name = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
