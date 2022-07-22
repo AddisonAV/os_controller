@@ -25,7 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
           elevation: 0.0,
           backgroundColor: AppColor.primaryColor,
           centerTitle: true,
-          title: const Text("If u read this u corno man!"),
+          title: const Text("Meu ovo"),
           actions: [
             IconButton(
                 onPressed: () {
