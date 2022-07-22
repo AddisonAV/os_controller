@@ -12,7 +12,7 @@ class CreateOSForm extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: const Text('test de cu'),
+          title: const Text('test de cu!'),
         ),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
