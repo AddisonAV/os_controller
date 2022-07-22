@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:os_controller/screens/create_os.dart';
 import 'package:os_controller/ui/colors.dart';
-import 'package:os_controller/utils/service_order.dart';
+import 'package:os_controller/utils/task.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -13,7 +13,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   Widget showOsTable() {
     return Column(
-      children: const [ServiceOrder(), ServiceOrder()],
+      children: const [Task(), Task()],
     );
   }
 

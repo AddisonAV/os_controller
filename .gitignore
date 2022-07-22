@@ -46,3 +46,6 @@ app.*.map.json
 /android/app/release
 linux/flutter/generated_plugins.cmake
 windows/flutter/generated_plugins.cmake
+linux/flutter/generated_plugins.cmake
+linux/flutter/generated_plugins.cmake
+windows/flutter/generated_plugins.cmake
