@@ -1,12 +1,12 @@
 // ignore_for_file: prefer_const_constructors
+import 'package:flutter/services.dart';
 import 'package:os_controller/ui/colors.dart';
-import 'dart:html';
-import 'package:date_field/date_field.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:os_controller/utils/task.dart';
 import 'package:flutter_titled_container/flutter_titled_container.dart';
+import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
+
 
 //we can create more parameters if needed
 TitledContainer createContainer(String text, String title, {double width = 200}){
@@ -31,8 +31,8 @@ TitledContainer createContainer(String text, String title, {double width = 200})
               ),
               child: Center(
                 child: Text(
+                  
                   text,
-                  //style: TextStyle(fontSize: 28.0),
                 ),
               ),
             ),
@@ -55,9 +55,13 @@ class _TaskWidget extends State<TaskWidget> {
   String cardName = "Card Name";
   double borderRadius = 9;
   DateTime selectedDate = DateTime.now();
-
+  int timeSpend = 0;
   late FocusNode focusNode;
+  final TextEditingController _controller = TextEditingController();
 
+  final myController = TextEditingController();
+
+  int costPerHour = 20;
 
   @override
   Widget build(BuildContext context) {
@@ -77,21 +81,16 @@ class _TaskWidget extends State<TaskWidget> {
             child: createContainer(cardName, "")
           ),
           Expanded(
-            child: createContainer( lastEditedDate, "Last edit ")
+            child: createContainer(creationDate, " Created at")
           ),
           Expanded(
-            child: createContainer(creationDate, " Created at"),
+            child: createContainer( lastEditedDate, "Last edit ")
           ),
 
           Expanded(
             
-            child: TitledContainer(
-              titleColor: AppColor.taskColor,
-              title: "Status",
-              textAlign: TextAlignTitledContainer.Left,
-              fontSize: 16.0,
-              backgroundColor: AppColor.primaryColor,
               child: Container(
+                
                 padding: EdgeInsets.all(20),
                 width: 200,
                 height: 80.0,
@@ -125,12 +124,61 @@ class _TaskWidget extends State<TaskWidget> {
                     );
                   }).toList(),
                 )
-              )
-          )
-            )
+              ),
+          ),
+          Expanded(
             
+            child: Container(
+              padding: EdgeInsets.all(20),
+              width: 200,
+              height: 80.0,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: AppColor.taskColor
+                  ),
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(9),
+                  ),
+                ),
+              child: TextField(
+                inputFormatters: [CurrencyTextInputFormatter(locale: 'en', decimalDigits: 2, name: "R\$")],
+                textAlign: TextAlign.center,
+                controller: _controller,
+                onSubmitted: (String value) async {
+                  timeSpend = int.parse(value);
+                },
+              ),
+            )
+          ),
+          Expanded(
+            
+            child: Container(
+              padding: EdgeInsets.all(20),
+              width: 200,
+              height: 80.0,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: AppColor.taskColor
+                  ),
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(9),
+                  ),
+                ),
+              child: TextField(
+                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]')), ],
+                textAlign: TextAlign.center,
+                controller: _controller,
+                onSubmitted: (String value) async {
+                  timeSpend = int.parse(value);
+                },
+              ),
+            )
+          ),
         ],
       )
     );
   }
 }
+
+
+
