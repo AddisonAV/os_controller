@@ -13,9 +13,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   Widget showOsTable() {
-    return Column(
-      children: const [TaskWidget(), TaskWidget()],
-    );
+    return TaskWidget();
   }
 
   @override
