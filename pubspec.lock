@@ -50,6 +50,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.4"
+  date_field:
+    dependency: "direct main"
+    description:
+      name: date_field
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.0.1"
   datetime_picker_formfield:
     dependency: "direct main"
     description:
@@ -81,6 +88,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_titled_container:
+    dependency: "direct main"
+    description:
+      name: flutter_titled_container
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.0.7"
   intl:
     dependency: "direct main"
     description:

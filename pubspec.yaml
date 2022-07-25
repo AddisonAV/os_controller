@@ -28,6 +28,8 @@ environment:
 # versions available, run `flutter pub outdated`.
 dependencies:
   datetime_picker_formfield: ^2.0.0
+  flutter_titled_container: ^1.0.7 
+  date_field: ^3.0.1
   flutter:
     sdk: flutter
 
