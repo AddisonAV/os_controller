@@ -1,26 +1,14 @@
 // ignore_for_file: prefer_const_constructors
-import 'package:flutter/services.dart';
 import 'package:os_controller/ui/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:os_controller/utils/task.dart';
-import 'package:flutter_titled_container/flutter_titled_container.dart';
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 
-
 //we can create more parameters if needed
-TitledContainer createContainer(String text, String title, {double width = 200}){
-    return  TitledContainer(
-            
-            titleColor: AppColor.taskColor,
-            title: title,
-            textAlign: TextAlignTitledContainer.Left,
-            fontSize: 16.0,
-            backgroundColor: AppColor.primaryColor,
-            child: Container(
-              padding: EdgeInsets.all(20),
-              width: width,
-              height: 80.0,
+Container customContainer(Widget child, {EdgeInsetsGeometry padding = const EdgeInsets.all(10), double width = 200, double height = 80}){
+    return  Container(
+              padding: padding,
               decoration: BoxDecoration(
                 border: Border.all(
                   color: AppColor.taskColor
@@ -29,15 +17,8 @@ TitledContainer createContainer(String text, String title, {double width = 200})
                   Radius.circular(9),
                 ),
               ),
-              child: Center(
-                child: Text(
-                  
-                  text,
-                ),
-              ),
-            ),
-          );
-
+              child: child,
+            );
 }
 
 class TaskWidget extends StatefulWidget {
@@ -52,14 +33,15 @@ class _TaskWidget extends State<TaskWidget> {
   Status dummyStts = Status.BACKLOG;
   String creationDate = DateFormat("dd/MM/yyyy").format(DateTime.now());
   String lastEditedDate = DateFormat("dd/MM/yyyy HH:mm").format(DateTime.now());
-  String cardName = "Card Name";
+  String cardName = "very big card name here to test something";
+  String description = "";
   double borderRadius = 9;
   DateTime selectedDate = DateTime.now();
   int timeSpend = 0;
   late FocusNode focusNode;
-  final TextEditingController _controller = TextEditingController();
-
-  final myController = TextEditingController();
+  final TextEditingController moneyController = TextEditingController();
+  final TextEditingController timeController = TextEditingController();
+  final TextEditingController descController = TextEditingController();
 
   int costPerHour = 20;
 
@@ -71,41 +53,44 @@ class _TaskWidget extends State<TaskWidget> {
         
         spacing: 10,
         children: <Widget>[
-          //const FlutterLogo(size: 100),
           const SizedBox(height: 10),
-          //const Text('DateField package showcase'),
           const Padding(
             padding: EdgeInsets.all(20.0),
           ),
           Expanded(
-            child: createContainer(cardName, "")
+            child: Wrap( children: [customContainer(Text(cardName))])
           ),
           Expanded(
-            child: createContainer(creationDate, " Created at")
+            child: Wrap( children: [customContainer(Text(creationDate))])
           ),
           Expanded(
-            child: createContainer( lastEditedDate, "Last edit ")
+            child: Wrap(children: [customContainer(Text(lastEditedDate))])
           ),
-
           Expanded(
-            
-              child: Container(
-                
-                padding: EdgeInsets.all(20),
-                width: 200,
-                height: 80.0,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: AppColor.taskColor
-                    ),
-                    borderRadius: BorderRadius.all(
-                      Radius.circular(9),
-                    ),
-                  ),
-                  child: DropdownButton<Status>(
+            child: Wrap(
+              children: [
+                Container(
+                  padding: EdgeInsets.all(4),
+                  child: IconButton(
+                    icon: const Icon(Icons.comment),
+                    tooltip: 'Annotations',
+                    onPressed: () {
+                      setState(() {
+                        openDialog();
+                      });
+                    },
+                  ) 
+                )
+              ]
+            ),
+          ),
+          Expanded(
+            child: Container(
+              padding: EdgeInsets.all(5),
+              child: DropdownButton<Status>(
                     value: dummyStts,
-                    icon: const Icon(Icons.arrow_downward),
-                    elevation: 16,
+                    icon: const Icon(Icons.arrow_downward, size: 15),
+                    elevation: 20,
                     style: TextStyle(color: AppColor.taskColor),
                     underline: Container(
                       height: 2,
@@ -120,14 +105,63 @@ class _TaskWidget extends State<TaskWidget> {
                         .map<DropdownMenuItem<Status>>((Status value) {
                       return DropdownMenuItem<Status>(
                         value: value,
-                        child: Text(value.toString().split('.').last),
+                        child: Text(value.toString().split('.').last, style: TextStyle(fontSize: 13)),
                     );
                   }).toList(),
-                )
-              ),
+                ),
+            )
           ),
           Expanded(
-            
+            child: Wrap(
+              children: [
+                customContainer(
+                  SizedBox(
+                    height: 20,
+                    width: 100,
+                    child: TextField(
+                      
+                      style: TextStyle(fontSize: 15),
+                      
+                      inputFormatters: [ 
+                          CurrencyTextInputFormatter(locale: 'eu', decimalDigits: 0, name: "H")
+                      ],
+                      textAlign: TextAlign.center,
+                      controller: timeController,
+                      onSubmitted: (String value) async {
+                        timeSpend = int.parse(value);
+                      },
+                    ),
+                  )  
+                , padding: EdgeInsets.only(bottom: 10))
+              ],
+            )
+          ),
+          Expanded(
+            child: Container(
+              padding: EdgeInsets.all(20),
+              width: 200,
+              height: 80.0,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: AppColor.taskColor
+                  ),
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(9),
+                  ),
+                ),
+              child: TextField(
+                inputFormatters: [ 
+                    CurrencyTextInputFormatter(locale: 'eu', decimalDigits: 0, name: "H")
+                ],
+                textAlign: TextAlign.left,
+                controller: timeController,
+                onSubmitted: (String value) async {
+                  timeSpend = int.parse(value);
+                },
+              ),
+            )
+          ),
+          Expanded(
             child: Container(
               padding: EdgeInsets.all(20),
               width: 200,
@@ -143,41 +177,49 @@ class _TaskWidget extends State<TaskWidget> {
               child: TextField(
                 inputFormatters: [CurrencyTextInputFormatter(locale: 'en', decimalDigits: 2, name: "R\$")],
                 textAlign: TextAlign.center,
-                controller: _controller,
+                controller: moneyController,
                 onSubmitted: (String value) async {
                   timeSpend = int.parse(value);
                 },
               ),
             )
           ),
-          Expanded(
-            
-            child: Container(
-              padding: EdgeInsets.all(20),
-              width: 200,
-              height: 80.0,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: AppColor.taskColor
-                  ),
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(9),
-                  ),
+        ]
+      )
+    );
+  }
+
+  Future openDialog() => showDialog(
+    context: context, 
+    builder: (context) => AlertDialog(
+        title: Text("Annotations"),
+        content: Wrap(children: [ 
+          Container(
+            margin: EdgeInsets.all(10),
+            padding: EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  color: AppColor.taskColor
                 ),
-              child: TextField(
-                inputFormatters: [FilteringTextInputFormatter.allow(RegExp(r'[0-9]')), ],
-                textAlign: TextAlign.center,
-                controller: _controller,
-                onSubmitted: (String value) async {
-                  timeSpend = int.parse(value);
-                },
+                borderRadius: BorderRadius.all(
+                  Radius.circular(9),
+                ),
               ),
+            child: TextField(
+              
+              keyboardType: TextInputType.multiline,
+              controller: descController,
+              textAlign: TextAlign.center,
+              maxLines: null,
+              onSubmitted: (String value) async {
+                    description = value;
+              }
             )
           ),
         ],
       )
-    );
-  }
+    )
+  );
 }
 
 
