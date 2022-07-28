@@ -23,14 +23,16 @@ Container customContainer(Widget child,
 }
 
 class TaskWidget extends StatefulWidget {
-  const TaskWidget({Key? key}) : super(key: key);
+  late Task task;
+  TaskWidget(this.task, {Key? key}) : super(key: key);
 
   @override
   State<TaskWidget> createState() => _TaskWidget();
 }
 
 class _TaskWidget extends State<TaskWidget> {
-  Task task = Task("Os bem maneira");
+  late Task task;
+
   double borderRadius = 9;
   late FocusNode focusNode;
   final TextEditingController moneyController = TextEditingController();
