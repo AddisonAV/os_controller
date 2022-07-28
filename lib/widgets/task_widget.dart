@@ -1,136 +1,279 @@
 // ignore_for_file: prefer_const_constructors
-import 'package:os_controller/ui/colors.dart';
-import 'dart:html';
-import 'package:date_field/date_field.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:os_controller/ui/colors.dart';
+import 'package:flutter/material.dart';
 import 'package:os_controller/utils/task.dart';
-import 'package:flutter_titled_container/flutter_titled_container.dart';
+import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 
 //we can create more parameters if needed
-TitledContainer createContainer(String text, String title, {double width = 200}){
-    return  TitledContainer(
-            
-            titleColor: AppColor.taskColor,
-            title: title,
-            textAlign: TextAlignTitledContainer.Left,
-            fontSize: 16.0,
-            backgroundColor: AppColor.primaryColor,
-            child: Container(
-              padding: EdgeInsets.all(20),
-              width: width,
-              height: 80.0,
-              decoration: BoxDecoration(
-                border: Border.all(
-                  color: AppColor.taskColor
-                ),
-                borderRadius: BorderRadius.all(
-                  Radius.circular(9),
-                ),
-              ),
-              child: Center(
-                child: Text(
-                  text,
-                  //style: TextStyle(fontSize: 28.0),
-                ),
-              ),
-            ),
-          );
-
+Container customContainer(Widget child,
+    {EdgeInsetsGeometry padding = const EdgeInsets.all(10),
+    double width = 200,
+    double height = 80}) {
+  return Container(
+    padding: padding,
+    decoration: BoxDecoration(
+      border: Border.all(color: AppColor.taskColor),
+      borderRadius: BorderRadius.all(
+        Radius.circular(9),
+      ),
+    ),
+    child: child,
+  );
 }
 
 class TaskWidget extends StatefulWidget {
-  const TaskWidget({Key? key}) : super(key: key);
+  final String taskName;
+  const TaskWidget(this.taskName, {Key? key}) : super(key: key);
 
   @override
   State<TaskWidget> createState() => _TaskWidget();
 }
 
 class _TaskWidget extends State<TaskWidget> {
-  late Task task;
-  Status dummyStts = Status.BACKLOG;
-  String creationDate = DateFormat("dd/MM/yyyy").format(DateTime.now());
-  String lastEditedDate = DateFormat("dd/MM/yyyy HH:mm").format(DateTime.now());
-  String cardName = "Card Name";
+  late Task task = Task(widget.taskName);
+
   double borderRadius = 9;
-  DateTime selectedDate = DateTime.now();
-
   late FocusNode focusNode;
+  final TextEditingController moneyController = TextEditingController();
+  final TextEditingController timeController = TextEditingController();
+  final TextEditingController descController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController lastEditedController = TextEditingController();
 
+  int costPerHour = 20;
+
+  void updateMoney(String value) {
+    int auxVal =
+        int.parse(value.replaceAll(RegExp(r'[^0-9]'), '')) * costPerHour;
+
+    moneyController.text = "R\$" + auxVal.toString() + ".00";
+  }
+
+  void updateLastEdited() {
+    lastEditedController.text = DateFormat.yMMMd().format(DateTime.now()) +
+        " " +
+        DateFormat.Hm().format(DateTime.now());
+  }
+
+  void createTask(String taskName) {
+    task = Task(taskName);
+  }
 
   @override
   Widget build(BuildContext context) {
+    updateLastEdited();
     return Container(
-      padding: EdgeInsets.all(10),
-      child: Wrap( 
-        
-        spacing: 10,
-        children: <Widget>[
-          //const FlutterLogo(size: 100),
+        padding: EdgeInsets.all(10),
+        child: Wrap(spacing: 10, children: <Widget>[
           const SizedBox(height: 10),
-          //const Text('DateField package showcase'),
           const Padding(
             padding: EdgeInsets.all(20.0),
           ),
           Expanded(
-            child: createContainer(cardName, "")
+            child: SizedBox(
+              height: 40,
+              width: 500,
+              child: TextField(
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5))),
+                  style: TextStyle(fontSize: 15),
+                  textAlign: TextAlign.center,
+                  controller: nameController,
+                  onSubmitted: (String value) async {
+                    updateLastEdited();
+                    task.setName(value);
+                  }),
+            ),
           ),
           Expanded(
-            child: createContainer( lastEditedDate, "Last edit ")
+            child: SizedBox(
+              height: 40,
+              width: 160,
+              child: TextField(
+                enabled: false,
+                decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5))),
+                style: TextStyle(fontSize: 15),
+                inputFormatters: [
+                  FilteringTextInputFormatter.singleLineFormatter,
+                  LengthLimitingTextInputFormatter(60)
+                ],
+                textAlign: TextAlign.center,
+                controller: lastEditedController,
+              ),
+            ),
           ),
           Expanded(
-            child: createContainer(creationDate, " Created at"),
+            child: customContainer(
+              Text(
+                task.getCreationDateStr(),
+                style: TextStyle(fontSize: 15),
+                textAlign: TextAlign.center,
+              ),
+            ),
           ),
-
           Expanded(
-            
-            child: TitledContainer(
-              titleColor: AppColor.taskColor,
-              title: "Status",
-              textAlign: TextAlignTitledContainer.Left,
-              fontSize: 16.0,
-              backgroundColor: AppColor.primaryColor,
+            child: Wrap(children: [
+              Container(
+                  padding: EdgeInsets.all(4),
+                  child: IconButton(
+                    icon: const Icon(Icons.comment),
+                    tooltip: 'Annotations',
+                    onPressed: () {
+                      setState(() {
+                        openDialog();
+                      });
+                    },
+                  ))
+            ]),
+          ),
+          Expanded(
               child: Container(
-                padding: EdgeInsets.all(20),
-                width: 200,
-                height: 80.0,
-                  decoration: BoxDecoration(
-                    border: Border.all(
-                      color: AppColor.taskColor
+            padding: EdgeInsets.only(left: 5, right: 5, bottom: 10),
+            child: DropdownButton<Status>(
+              value: task.getStatus(),
+              icon: const Icon(Icons.arrow_downward, size: 15),
+              elevation: 20,
+              style: TextStyle(color: AppColor.taskColor),
+              underline: Container(
+                height: 1,
+                color: Colors.deepPurpleAccent,
+              ),
+              onChanged: (Status? newValue) {
+                setState(() {
+                  task.setStatus(newValue!);
+                  updateLastEdited();
+                });
+              },
+              items: <Status>[
+                Status.BACKLOG,
+                Status.WORKING,
+                Status.FIXING,
+                Status.DONE,
+                Status.PAUSED
+              ].map<DropdownMenuItem<Status>>((Status value) {
+                return DropdownMenuItem<Status>(
+                  value: value,
+                  child: Text(value.toString().split('.').last,
+                      style: TextStyle(fontSize: 13)),
+                );
+              }).toList(),
+            ),
+          )),
+          Expanded(
+              child: Wrap(
+            children: [
+              customContainer(
+                  SizedBox(
+                    height: 20,
+                    width: 100,
+                    child: TextField(
+                      decoration: InputDecoration.collapsed(hintText: '0 H'),
+                      style: TextStyle(fontSize: 15),
+                      inputFormatters: [
+                        CurrencyTextInputFormatter(
+                            locale: 'eu', decimalDigits: 0, name: "H")
+                      ],
+                      textAlign: TextAlign.center,
+                      controller: timeController,
+                      onSubmitted: (String value) async {
+                        updateMoney(value);
+
+                        updateLastEdited();
+
+                        task.setTime(int.parse(value));
+                      },
                     ),
+                  ),
+                  padding:
+                      EdgeInsets.only(bottom: 3, left: 10, right: 10, top: 13))
+            ],
+          )),
+          Expanded(
+              child: Wrap(
+            children: [
+              customContainer(
+                  SizedBox(
+                    height: 20,
+                    width: 100,
+                    child: TextField(
+                      enabled: false,
+                      decoration:
+                          InputDecoration.collapsed(hintText: 'R\$ 0.00'),
+                      style: TextStyle(fontSize: 15),
+                      //inputFormatters: [
+                      //CurrencyTextInputFormatter(
+                      //locale: 'en', decimalDigits: 2, name: "R\$")
+                      //],
+                      textAlign: TextAlign.center,
+                      controller: moneyController,
+                    ),
+                  ),
+                  padding:
+                      EdgeInsets.only(bottom: 3, left: 10, right: 10, top: 13))
+            ],
+          )),
+        ]));
+  }
+
+  Future openDialog() => showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+              content: Wrap(
+            children: [
+              Align(
+                alignment: Alignment.topRight,
+                child: InkResponse(
+                  onTap: () {
+                    descController.text = task.getAnnotation();
+                    Navigator.of(context).pop();
+                  },
+                  child: const CircleAvatar(
+                    backgroundColor: Colors.transparent,
+                    child: Icon(
+                      Icons.close,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ),
+              Align(
+                alignment: Alignment.center,
+                child: Text(
+                  'Annotations',
+                  style: TextStyle(fontSize: 15),
+                ),
+              ),
+              Container(
+                  margin: EdgeInsets.all(10),
+                  padding: EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppColor.taskColor),
                     borderRadius: BorderRadius.all(
                       Radius.circular(9),
                     ),
                   ),
-                  child: DropdownButton<Status>(
-                    value: dummyStts,
-                    icon: const Icon(Icons.arrow_downward),
-                    elevation: 16,
-                    style: TextStyle(color: AppColor.taskColor),
-                    underline: Container(
-                      height: 2,
-                      color: Colors.deepPurpleAccent,
-                    ),
-                    onChanged: (Status? newValue) {
-                      setState(() {
-                        dummyStts = newValue!;
-                      });
-                    },
-                    items: <Status>[Status.BACKLOG, Status.WORKING, Status.FIXING, Status.DONE,Status.PAUSED]
-                        .map<DropdownMenuItem<Status>>((Status value) {
-                      return DropdownMenuItem<Status>(
-                        value: value,
-                        child: Text(value.toString().split('.').last),
-                    );
-                  }).toList(),
-                )
+                  child: TextField(
+                      keyboardType: TextInputType.multiline,
+                      controller: descController,
+                      textAlign: TextAlign.center,
+                      maxLines: null,
+                      onSubmitted: (String value) async {
+                        descController.text = task.getAnnotation();
+                      })),
+              Center(
+                child: ElevatedButton(
+                  child: const Text("Save"),
+                  onPressed: () {
+                    task.setAnnotation(descController.text);
+                    Navigator.of(context).pop();
+                  },
+                ),
               )
-          )
-            )
-            
-        ],
-      )
-    );
-  }
+            ],
+          )));
 }
