@@ -1,5 +1,5 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:os_controller/screens/create_os.dart';
 import 'package:os_controller/ui/colors.dart';
 import 'package:os_controller/utils/task.dart';
 import 'package:os_controller/widgets/task_widget.dart';
@@ -15,40 +15,48 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController descController = TextEditingController(),
       newOSController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  Widget showOsTable() {
-    return TaskWidget();
-  }
+
+  ValueNotifier<List<Task>> tasks =
+      ValueNotifier([Task('Task 1'), Task('Task 2')]);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppColor.primaryColor,
+      appBar: AppBar(
+        elevation: 0.0,
         backgroundColor: AppColor.primaryColor,
-        appBar: AppBar(
-          elevation: 0.0,
-          backgroundColor: AppColor.primaryColor,
-          centerTitle: true,
-          title: const Text("OVo do breno"),
-          actions: [
-            IconButton(
-                onPressed: () {
-                  setState(() {
-                    openDialog();
-                  });
-                  //Navigator.push(
-                  //context,
-                  //MaterialPageRoute(builder: (context) => openDialog()),
-                  //);
-                },
-                icon: const Icon(Icons.plus_one_outlined))
-          ],
-        ),
-        body: showOsTable());
+        centerTitle: true,
+        title: const Text("Ovo do breno"),
+        actions: [
+          IconButton(
+              onPressed: () {
+                setState(() {
+                  //tasks.value.add(Task('Task ${tasks.value.length + 1}'));
+                  openDialog();
+                });
+              },
+              icon: const Icon(Icons.plus_one_outlined))
+        ],
+      ),
+      body: ValueListenableBuilder(
+        valueListenable: tasks,
+        builder: (context, List<Task> tasks, child) {
+          return ListView.builder(
+            itemCount: tasks.length,
+            itemBuilder: (context, index) {
+              return TaskWidget(tasks[index].name);
+            },
+          );
+        },
+      ),
+    );
   }
 
   Future openDialog() => showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-            content: Stack(
+            content: Row(
               children: <Widget>[
                 Positioned(
                   right: -5,
@@ -63,7 +71,6 @@ class _HomeScreenState extends State<HomeScreen> {
                         Icons.close,
                         size: 15,
                       ),
-                      //backgroundColor: Colors.red,
                     ),
                   ),
                 ),
@@ -88,9 +95,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           textAlign: TextAlign.center,
                           decoration: InputDecoration(
                             hintText: "Enter os Name",
-                            //hintStyle: TextStyle(color: Color.fromARGB(a, r, g, b)),
                             border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(10),
+                              borderRadius: BorderRadius.circular(5),
                             ),
                           ),
                           onChanged: (value) {
@@ -103,8 +109,10 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: ElevatedButton(
                           child: const Text("Create OS"),
                           onPressed: () {
-                            Navigator.of(context).pop();
+                            tasks.value.add(Task(newOSController.text));
+                            setState(() {});
                             newOSController.clear();
+                            Navigator.of(context).pop();
                           },
                         ),
                       )

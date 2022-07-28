@@ -1,7 +1,8 @@
 // ignore_for_file: prefer_const_constructors
+import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
 import 'package:os_controller/ui/colors.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:os_controller/utils/task.dart';
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 
@@ -23,26 +24,46 @@ Container customContainer(Widget child,
 }
 
 class TaskWidget extends StatefulWidget {
-  late Task task;
-  TaskWidget(this.task, {Key? key}) : super(key: key);
+  final String taskName;
+  const TaskWidget(this.taskName, {Key? key}) : super(key: key);
 
   @override
   State<TaskWidget> createState() => _TaskWidget();
 }
 
 class _TaskWidget extends State<TaskWidget> {
-  late Task task;
+  late Task task = Task(widget.taskName);
 
   double borderRadius = 9;
   late FocusNode focusNode;
   final TextEditingController moneyController = TextEditingController();
   final TextEditingController timeController = TextEditingController();
   final TextEditingController descController = TextEditingController();
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController lastEditedController = TextEditingController();
 
   int costPerHour = 20;
 
+  void updateMoney(String value) {
+    int auxVal =
+        int.parse(value.replaceAll(RegExp(r'[^0-9]'), '')) * costPerHour;
+
+    moneyController.text = "R\$" + auxVal.toString() + ".00";
+  }
+
+  void updateLastEdited() {
+    lastEditedController.text = DateFormat.yMMMd().format(DateTime.now()) +
+        " " +
+        DateFormat.Hm().format(DateTime.now());
+  }
+
+  void createTask(String taskName) {
+    task = Task(taskName);
+  }
+
   @override
   Widget build(BuildContext context) {
+    updateLastEdited();
     return Container(
         padding: EdgeInsets.all(10),
         child: Wrap(spacing: 10, children: <Widget>[
@@ -51,15 +72,50 @@ class _TaskWidget extends State<TaskWidget> {
             padding: EdgeInsets.all(20.0),
           ),
           Expanded(
-              child: Wrap(children: [customContainer(Text(task.getName()))])),
+            child: SizedBox(
+              height: 40,
+              width: 500,
+              child: TextField(
+                  decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(5))),
+                  style: TextStyle(fontSize: 15),
+                  textAlign: TextAlign.center,
+                  controller: nameController,
+                  onSubmitted: (String value) async {
+                    updateLastEdited();
+                    task.setName(value);
+                  }),
+            ),
+          ),
           Expanded(
-              child: Wrap(children: [
-            customContainer(Text(task.getCreationDateStr()))
-          ])),
+            child: SizedBox(
+              height: 40,
+              width: 160,
+              child: TextField(
+                enabled: false,
+                decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5))),
+                style: TextStyle(fontSize: 15),
+                inputFormatters: [
+                  FilteringTextInputFormatter.singleLineFormatter,
+                  LengthLimitingTextInputFormatter(60)
+                ],
+                textAlign: TextAlign.center,
+                controller: lastEditedController,
+              ),
+            ),
+          ),
           Expanded(
-              child: Wrap(children: [
-            customContainer(Text(task.getLastEditedDatetimeStr()))
-          ])),
+            child: customContainer(
+              Text(
+                task.getCreationDateStr(),
+                style: TextStyle(fontSize: 15),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
           Expanded(
             child: Wrap(children: [
               Container(
@@ -90,6 +146,7 @@ class _TaskWidget extends State<TaskWidget> {
               onChanged: (Status? newValue) {
                 setState(() {
                   task.setStatus(newValue!);
+                  updateLastEdited();
                 });
               },
               items: <Status>[
@@ -124,6 +181,10 @@ class _TaskWidget extends State<TaskWidget> {
                       textAlign: TextAlign.center,
                       controller: timeController,
                       onSubmitted: (String value) async {
+                        updateMoney(value);
+
+                        updateLastEdited();
+
                         task.setTime(int.parse(value));
                       },
                     ),
@@ -140,18 +201,16 @@ class _TaskWidget extends State<TaskWidget> {
                     height: 20,
                     width: 100,
                     child: TextField(
+                      enabled: false,
                       decoration:
                           InputDecoration.collapsed(hintText: 'R\$ 0.00'),
                       style: TextStyle(fontSize: 15),
-                      inputFormatters: [
-                        CurrencyTextInputFormatter(
-                            locale: 'en', decimalDigits: 2, name: "R\$")
-                      ],
+                      //inputFormatters: [
+                      //CurrencyTextInputFormatter(
+                      //locale: 'en', decimalDigits: 2, name: "R\$")
+                      //],
                       textAlign: TextAlign.center,
                       controller: moneyController,
-                      onSubmitted: (String value) async {
-                        task.setMoney(double.parse(value));
-                      },
                     ),
                   ),
                   padding:

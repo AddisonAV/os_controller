@@ -1,6 +1,4 @@
 // ignore_for_file: constant_identifier_names, non_constant_identifier_names
-
-import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 enum Status { BACKLOG, WORKING, FIXING, DONE, PAUSED }
@@ -40,7 +38,7 @@ class Task {
   }
 
   String getCreationDateStr() {
-    return DateFormat("dd/MM/yyyy").format(creationDate);
+    return DateFormat.yMMMd().format(creationDate);
   }
 
   Status getStatus() {
@@ -53,6 +51,10 @@ class Task {
 
   String getAnnotation() {
     return annotations;
+  }
+
+  void setName(String name) {
+    this.name = name;
   }
 
   void setTime(int newTime) {
