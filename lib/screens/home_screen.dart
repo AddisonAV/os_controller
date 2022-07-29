@@ -1,9 +1,11 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:os_controller/ui/colors.dart';
 import 'package:os_controller/utils/task.dart';
 import 'package:os_controller/widgets/task_widget.dart';
+import 'package:os_controller/utils/providers.dart';
+import 'package:event_bus/event_bus.dart';
+import 'package:os_controller/utils/change_status_event.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -18,10 +20,59 @@ class _HomeScreenState extends State<HomeScreen> {
   final _formKey = GlobalKey<FormState>();
 
   ValueNotifier<List<Task>> tasks =
-      ValueNotifier([Task('Task 1'), Task('Task 2')]);
+      ValueNotifier([Task('Task 1', 0), Task('Task 2', 1), Task('Task 3', 2)]);
+
+  ValueNotifier<Map<Status, List<Task>>> tasksMap = ValueNotifier({
+    Status.BACKLOG: [],
+    Status.WORKING: [],
+    Status.FIXING: [],
+    Status.DONE: [],
+    Status.PAUSED: [],
+    Status.PAID: [],
+  });
+
+  void printTaskMap() {
+    for (Status status in Status.values) {
+      print("Status: " + status.toString() + "\n");
+      for (Task task in tasksMap.value[status]!) {
+        print(task.name);
+      }
+    }
+  }
+
+  void updateTaskMap() {
+    for (Status status in Status.values) {
+      tasksMap.value[status] =
+          tasks.value.where((task) => task.status == status).toList();
+    }
+  }
+
+  void initializeTaskMap() {
+    for (Task task in tasks.value) {
+      tasksMap.value[task.status]?.add(task);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    initializeTaskMap();
+
+    getIt<EventBus>().on<ChangeStatusEvent>().listen((event) {
+      for (Task task in tasks.value) {
+        if (task.id == event.getEventTaskId()) {
+          task.setStatus(event.getStatus());
+          break;
+        }
+      }
+
+      updateTaskMap();
+      printTaskMap();
+      for (Task task in tasks.value) {
+        print(task.name + ": " + task.status.toString());
+      }
+      setState(() {});
+    });
+
     return Scaffold(
       backgroundColor: AppColor.primaryColor,
       appBar: AppBar(
@@ -40,15 +91,16 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
       ),
       body: ValueListenableBuilder(
-        valueListenable: tasks,
-        builder: (context, List<Task> tasks, child) {
+        valueListenable: tasksMap,
+        builder: (context, Map<Status, List<Task>> _tasks, child) {
           return Column(
             children: [
               Expanded(
                 child: ListView.builder(
-                  itemCount: tasks.length,
+                  itemCount: _tasks[Status.BACKLOG]?.length,
                   itemBuilder: (context, index) {
-                    return TaskWidget(tasks[index].name);
+                    return TaskWidget(_tasks[Status.BACKLOG]![index].name,
+                        _tasks[Status.BACKLOG]![index].id);
                   },
                 ),
               ),
@@ -122,7 +174,8 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: ElevatedButton(
                           child: const Text("Create OS"),
                           onPressed: () {
-                            tasks.value.add(Task(newOSController.text));
+                            tasks.value.add(Task(newOSController.text, 1));
+                            updateTaskMap();
                             setState(() {});
                             newOSController.clear();
                             Navigator.of(context).pop();

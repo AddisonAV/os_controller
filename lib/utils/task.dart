@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 //enum Status { BACKLOG, WORKING, FIXING, DONE, PAUSED, PAID }
 
 class Task {
+  int id;
   bool isTaskEnabled = true;
   String status = "BACKLOG";
   late DateTime creationDate;
@@ -13,10 +14,17 @@ class Task {
   String annotations = "";
   late double money = 0;
 
-  Task(this.name) {
+  Task(this.name, this.id) {
     creationDate = DateTime.now();
     lastEditDate = creationDate;
   }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Task && runtimeType == other.runtimeType && id == other.id;
+
+  bool operator <(Task other) => id < other.id;
 
   int getTime() {
     return time;
@@ -82,4 +90,8 @@ class Task {
   void setMoney(double newMoney) {
     money = newMoney;
   }
+
+  @override
+  // TODO: implement hashCode
+  int get hashCode => super.hashCode;
 }
