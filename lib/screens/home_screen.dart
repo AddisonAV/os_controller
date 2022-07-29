@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:os_controller/ui/colors.dart';
 import 'package:os_controller/utils/task.dart';
 import 'package:os_controller/widgets/task_widget.dart';
@@ -87,23 +88,30 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: TextFormField(
-                          controller: newOSController,
-                          style: const TextStyle(
-                              color: Colors.white, fontStyle: FontStyle.italic),
-                          textAlign: TextAlign.center,
-                          decoration: InputDecoration(
-                            hintText: "Enter os Name",
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(5),
+                          padding: const EdgeInsets.all(8.0),
+                          child: SizedBox(
+                            height: 40,
+                            width: MediaQuery.of(context).size.width / 4,
+                            child: TextField(
+                              inputFormatters: [
+                                LengthLimitingTextInputFormatter(60)
+                              ],
+                              controller: newOSController,
+                              style: const TextStyle(
+                                  color: Colors.white,
+                                  fontStyle: FontStyle.italic),
+                              textAlign: TextAlign.center,
+                              decoration: InputDecoration(
+                                hintText: "Enter os Name",
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                              ),
+                              onChanged: (value) {
+                                print(value);
+                              },
                             ),
-                          ),
-                          onChanged: (value) {
-                            print(value);
-                          },
-                        ),
-                      ),
+                          )),
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: ElevatedButton(
