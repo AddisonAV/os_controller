@@ -8,10 +8,16 @@ import 'package:event_bus/event_bus.dart';
 class Status {
   List dataStatus = [];
   List<String> StatusList = [];
+  Map<String, String> statusID = {};
+
   late DataLoadEvent dataLoadEvent;
 
   Status() {
     getAllStatus();
+  }
+
+  String? findStatusID(String status) {
+    return statusID[status];
   }
 
   Future getAllStatus() async {
@@ -24,6 +30,7 @@ class Status {
 
       for (var aux in dataStatus) {
         StatusList.add(aux['status']);
+        statusID.addAll({aux['status']: aux['id'].toString()});
       }
     } else {
       dataLoadEvent = DataLoadEvent(false);

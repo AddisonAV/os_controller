@@ -39,7 +39,7 @@ class TaskWidget extends StatefulWidget {
 }
 
 class _TaskWidget extends State<TaskWidget> {
-  late Task task = Task(widget.taskName, widget.taskId);
+  late Task task = Task(widget.taskName);
 
   double borderRadius = 9;
   late FocusNode focusNode;
@@ -66,7 +66,7 @@ class _TaskWidget extends State<TaskWidget> {
   }
 
   void createTask(String taskName, int id) {
-    task = Task(taskName, id);
+    task = Task(taskName);
   }
 
   @override

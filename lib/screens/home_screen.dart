@@ -22,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final _formKey = GlobalKey<FormState>();
 
   ValueNotifier<List<Task>> tasks =
-      ValueNotifier([Task('Task 1', 0), Task('Task 2', 1), Task('Task 3', 2)]);
+      ValueNotifier([Task('Task 1'), Task('Task 2'), Task('Task 3')]);
 
   ValueNotifier<Map<String, List<Task>>> tasksMap = ValueNotifier({
     "BACKLOG": [],
@@ -170,7 +170,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: ElevatedButton(
                           child: const Text("Create OS"),
                           onPressed: () {
-                            tasks.value.add(Task(newOSController.text, 1));
+                            Task newTask = Task(newOSController.text);
+                            tasks.value.add(newTask);
+                            newTask.Save();
                             updateTaskMap();
                             setState(() {});
                             newOSController.clear();
