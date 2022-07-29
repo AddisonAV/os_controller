@@ -5,7 +5,7 @@ import 'package:os_controller/widgets/task_widget.dart';
 
 class TaskUpdater extends ChangeNotifier {
   final ValueNotifier<List<Task>> tasks =
-      ValueNotifier([Task('Task 1', 0), Task('Task 2', 1), Task('Task 3', 2)]);
+      ValueNotifier([Task('Task 1'), Task('Task 2'), Task('Task 3')]);
 
   final ValueNotifier<Map<String, List<TaskWidget>>> tasksMap = ValueNotifier({
     "BACKLOG": [],
