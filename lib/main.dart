@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:os_controller/screens/home_screen.dart';
+import 'package:os_controller/utils/change_status_event.dart';
 //import 'package:bitsdojo_window/bitsdojo_window.dart';
+import 'package:os_controller/utils/providers.dart';
+import 'package:event_bus/event_bus.dart';
 
 void main() {
+  setupProviders();
   runApp(const MyApp());
 }
 

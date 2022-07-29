@@ -3,8 +3,11 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:os_controller/ui/colors.dart';
 import 'package:flutter/material.dart';
+import 'package:os_controller/utils/change_status_event.dart';
+import 'package:os_controller/utils/providers.dart';
 import 'package:os_controller/utils/task.dart';
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
+import 'package:event_bus/event_bus.dart';
 
 //we can create more parameters if needed
 Container customContainer(Widget child,
@@ -25,14 +28,15 @@ Container customContainer(Widget child,
 
 class TaskWidget extends StatefulWidget {
   final String taskName;
-  const TaskWidget(this.taskName, {Key? key}) : super(key: key);
+  final int taskId;
+  const TaskWidget(this.taskName, this.taskId, {Key? key}) : super(key: key);
 
   @override
   State<TaskWidget> createState() => _TaskWidget();
 }
 
 class _TaskWidget extends State<TaskWidget> {
-  late Task task = Task(widget.taskName);
+  late Task task = Task(widget.taskName, widget.taskId);
 
   double borderRadius = 9;
   late FocusNode focusNode;
@@ -58,8 +62,8 @@ class _TaskWidget extends State<TaskWidget> {
         DateFormat.Hm().format(DateTime.now());
   }
 
-  void createTask(String taskName) {
-    task = Task(taskName);
+  void createTask(String taskName, int id) {
+    task = Task(taskName, id);
   }
 
   @override
@@ -140,6 +144,7 @@ class _TaskWidget extends State<TaskWidget> {
                   onChanged: (Status? newValue) {
                     setState(() {
                       task.setStatus(newValue!);
+                      getIt<EventBus>().fire(ChangeStatusEvent(task));
                       updateLastEdited();
                     });
                   },
