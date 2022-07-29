@@ -17,6 +17,14 @@ class _HomeScreenState extends State<HomeScreen> {
       newOSController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
+  Map<Status, List<Task>> tasks_map = {
+    Status.BACKLOG: [],
+    Status.WORKING: [],
+    Status.FIXING: [],
+    Status.DONE: [],
+    Status.PAUSED: [],
+    Status.PAID: [],
+  };
   ValueNotifier<List<Task>> tasks =
       ValueNotifier([Task('Task 1'), Task('Task 2')]);
 
@@ -33,7 +41,6 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
               onPressed: () {
                 setState(() {
-                  //tasks.value.add(Task('Task ${tasks.value.length + 1}'));
                   openDialog();
                 });
               },
@@ -43,11 +50,17 @@ class _HomeScreenState extends State<HomeScreen> {
       body: ValueListenableBuilder(
         valueListenable: tasks,
         builder: (context, List<Task> tasks, child) {
-          return ListView.builder(
-            itemCount: tasks.length,
-            itemBuilder: (context, index) {
-              return TaskWidget(tasks[index].name);
-            },
+          return Column(
+            children: [
+              Expanded(
+                child: ListView.builder(
+                  itemCount: tasks.length,
+                  itemBuilder: (context, index) {
+                    return TaskWidget(tasks[index].name);
+                  },
+                ),
+              ),
+            ],
           );
         },
       ),
@@ -57,7 +70,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future openDialog() => showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
-            content: Row(
+            content: Stack(
               children: <Widget>[
                 Positioned(
                   right: -5,
