@@ -1,7 +1,6 @@
 import 'package:http/http.dart' as http;
 import 'package:os_controller/utils/dataLoadEvent.dart';
 import 'dart:convert';
-
 import 'package:os_controller/utils/providers.dart';
 import 'package:event_bus/event_bus.dart';
 
