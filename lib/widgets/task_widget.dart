@@ -63,6 +63,7 @@ class _TaskWidget extends State<TaskWidget> {
 
   @override
   Widget build(BuildContext context) {
+    nameController.text = task.name;
     updateLastEdited();
     return Container(
         padding: EdgeInsets.all(10),
