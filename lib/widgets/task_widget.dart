@@ -1,10 +1,12 @@
 // ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:os_controller/ui/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:os_controller/utils/task.dart';
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
+import 'package:os_controller/utils/status.dart';
 
 //we can create more parameters if needed
 Container customContainer(Widget child,
@@ -62,18 +64,9 @@ class _TaskWidget extends State<TaskWidget> {
     task = Task(taskName);
   }
 
-  Future<void> getStatus() async {
-    final response = await http.get(Uri.parse('http://localhost:9898/status'));
-
-    if (response.statusCode == 200) {
-      // If the server did return a 200 OK response,
-      // then parse the JSON.
-      print('Response body: ${response.body}');
-    } else {
-      // If the server did not return a 200 OK response,
-      // then throw an exception.
-      throw Exception('Failed to load album');
-    }
+  @override
+  void initState() {
+    super.initState();
   }
 
   @override
@@ -142,7 +135,7 @@ class _TaskWidget extends State<TaskWidget> {
               child: SizedBox(
                 height: 50,
                 width: 100,
-                child: DropdownButton<Status>(
+                child: DropdownButton(
                   value: task.getStatus(),
                   icon: const Icon(Icons.arrow_downward, size: 15),
                   elevation: 20,
@@ -151,23 +144,16 @@ class _TaskWidget extends State<TaskWidget> {
                     height: 1,
                     color: Colors.deepPurpleAccent,
                   ),
-                  onChanged: (Status? newValue) {
+                  onChanged: (newValue) {
                     setState(() {
-                      task.setStatus(newValue!);
+                      task.setStatus(newValue as String);
                       updateLastEdited();
                     });
                   },
-                  items: <Status>[
-                    Status.BACKLOG,
-                    Status.WORKING,
-                    Status.FIXING,
-                    Status.DONE,
-                    Status.PAUSED,
-                    Status.PAID
-                  ].map<DropdownMenuItem<Status>>((Status value) {
-                    return DropdownMenuItem<Status>(
-                      value: value,
-                      child: Text(value.toString().split('.').last,
+                  items: status.dataStatus.map((list) {
+                    return DropdownMenuItem(
+                      value: list['status'],
+                      child: Text(list['status'].toString().split('.').last,
                           style: TextStyle(fontSize: 13)),
                     );
                   }).toList(),

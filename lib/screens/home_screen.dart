@@ -17,14 +17,6 @@ class _HomeScreenState extends State<HomeScreen> {
       newOSController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  Map<Status, List<Task>> tasks_map = {
-    Status.BACKLOG: [],
-    Status.WORKING: [],
-    Status.FIXING: [],
-    Status.DONE: [],
-    Status.PAUSED: [],
-    Status.PAID: [],
-  };
   ValueNotifier<List<Task>> tasks =
       ValueNotifier([Task('Task 1'), Task('Task 2')]);
 
