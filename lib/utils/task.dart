@@ -1,12 +1,12 @@
 // ignore_for_file: constant_identifier_names, non_constant_identifier_names
 import 'package:intl/intl.dart';
 
-enum Status { BACKLOG, WORKING, FIXING, DONE, PAUSED, PAID }
+//enum Status { BACKLOG, WORKING, FIXING, DONE, PAUSED, PAID }
 
 class Task {
   int id;
   bool isTaskEnabled = true;
-  Status status = Status.BACKLOG;
+  String status = "BACKLOG";
   late DateTime creationDate;
   late DateTime lastEditDate;
   int time = 0;
@@ -50,7 +50,7 @@ class Task {
     return DateFormat.yMMMd().format(creationDate);
   }
 
-  Status getStatus() {
+  String getStatus() {
     return status;
   }
 
@@ -78,8 +78,8 @@ class Task {
     annotations = newAnnotation;
   }
 
-  void setStatus(Status newStatus) {
-    if (newStatus == Status.PAID) {
+  void setStatus(String newStatus) {
+    if (newStatus == "PAID") {
       isTaskEnabled = false;
     } else {
       isTaskEnabled = true;

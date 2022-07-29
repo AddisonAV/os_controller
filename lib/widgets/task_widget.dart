@@ -1,4 +1,5 @@
 // ignore_for_file: prefer_const_constructors
+
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:os_controller/ui/colors.dart';
@@ -7,6 +8,7 @@ import 'package:os_controller/utils/change_status_event.dart';
 import 'package:os_controller/utils/providers.dart';
 import 'package:os_controller/utils/task.dart';
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
+import 'package:os_controller/utils/status.dart';
 import 'package:event_bus/event_bus.dart';
 
 //we can create more parameters if needed
@@ -64,6 +66,11 @@ class _TaskWidget extends State<TaskWidget> {
 
   void createTask(String taskName, int id) {
     task = Task(taskName, id);
+  }
+
+  @override
+  void initState() {
+    super.initState();
   }
 
   @override
@@ -132,7 +139,7 @@ class _TaskWidget extends State<TaskWidget> {
               child: SizedBox(
                 height: 50,
                 width: 100,
-                child: DropdownButton<Status>(
+                child: DropdownButton(
                   value: task.getStatus(),
                   icon: const Icon(Icons.arrow_downward, size: 15),
                   elevation: 20,
@@ -141,24 +148,20 @@ class _TaskWidget extends State<TaskWidget> {
                     height: 1,
                     color: Colors.deepPurpleAccent,
                   ),
-                  onChanged: (Status? newValue) {
+                  onChanged: (newValue) {
                     setState(() {
-                      task.setStatus(newValue!);
+
+                      task.setStatus(newValue as String);
+
+                      
                       getIt<EventBus>().fire(ChangeStatusEvent(task));
                       updateLastEdited();
                     });
                   },
-                  items: <Status>[
-                    Status.BACKLOG,
-                    Status.WORKING,
-                    Status.FIXING,
-                    Status.DONE,
-                    Status.PAUSED,
-                    Status.PAID
-                  ].map<DropdownMenuItem<Status>>((Status value) {
-                    return DropdownMenuItem<Status>(
-                      value: value,
-                      child: Text(value.toString().split('.').last,
+                  items: status.dataStatus.map((list) {
+                    return DropdownMenuItem(
+                      value: list['status'],
+                      child: Text(list['status'].toString().split('.').last,
                           style: TextStyle(fontSize: 13)),
                     );
                   }).toList(),
