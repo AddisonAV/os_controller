@@ -9,7 +9,7 @@ class ChangeStatusEvent {
     return updated_task.id;
   }
 
-  Status getStatus() {
+  String getStatus() {
     return updated_task.status;
   }
 }

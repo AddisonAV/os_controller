@@ -6,6 +6,7 @@ import 'package:os_controller/widgets/task_widget.dart';
 import 'package:os_controller/utils/providers.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:os_controller/utils/change_status_event.dart';
+import 'package:os_controller/utils/status.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -22,17 +23,17 @@ class _HomeScreenState extends State<HomeScreen> {
   ValueNotifier<List<Task>> tasks =
       ValueNotifier([Task('Task 1', 0), Task('Task 2', 1), Task('Task 3', 2)]);
 
-  ValueNotifier<Map<Status, List<Task>>> tasksMap = ValueNotifier({
-    Status.BACKLOG: [],
-    Status.WORKING: [],
-    Status.FIXING: [],
-    Status.DONE: [],
-    Status.PAUSED: [],
-    Status.PAID: [],
+  ValueNotifier<Map<String, List<Task>>> tasksMap = ValueNotifier({
+    "BACKLOG": [],
+    "WORKING": [],
+    "FIXING": [],
+    "DONE": [],
+    "PAUSED": [],
+    "PAID": [],
   });
 
   void printTaskMap() {
-    for (Status status in Status.values) {
+    for (String status in status.dataStatus) {
       print("Status: " + status.toString() + "\n");
       for (Task task in tasksMap.value[status]!) {
         print(task.name);
@@ -41,7 +42,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void updateTaskMap() {
-    for (Status status in Status.values) {
+    for (String status in status.dataStatus) {
       tasksMap.value[status] =
           tasks.value.where((task) => task.status == status).toList();
     }
@@ -56,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     initializeTaskMap();
-
+    printTaskMap();
     getIt<EventBus>().on<ChangeStatusEvent>().listen((event) {
       for (Task task in tasks.value) {
         if (task.id == event.getEventTaskId()) {
@@ -92,15 +93,15 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       body: ValueListenableBuilder(
         valueListenable: tasksMap,
-        builder: (context, Map<Status, List<Task>> _tasks, child) {
+        builder: (context, Map<String, List<Task>> _tasks, child) {
           return Column(
             children: [
               Expanded(
                 child: ListView.builder(
-                  itemCount: _tasks[Status.BACKLOG]?.length,
+                  itemCount: _tasks["BACKLOG"]?.length,
                   itemBuilder: (context, index) {
-                    return TaskWidget(_tasks[Status.BACKLOG]![index].name,
-                        _tasks[Status.BACKLOG]![index].id);
+                    return TaskWidget(_tasks["BACKLOG"]![index].name,
+                        _tasks["BACKLOG"]![index].id);
                   },
                 ),
               ),

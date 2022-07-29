@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:os_controller/ui/colors.dart';
 import 'package:flutter/material.dart';
 import 'package:os_controller/utils/change_status_event.dart';
+import 'package:os_controller/utils/dataLoadEvent.dart';
 import 'package:os_controller/utils/providers.dart';
 import 'package:os_controller/utils/task.dart';
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
@@ -75,6 +76,11 @@ class _TaskWidget extends State<TaskWidget> {
 
   @override
   Widget build(BuildContext context) {
+    getIt<EventBus>().on<DataLoadEvent>().listen((event) {
+      if (event.getEventResult()) {
+        setState(() {});
+      }
+    });
     nameController.text = task.name;
     updateLastEdited();
     return Container(
@@ -150,10 +156,8 @@ class _TaskWidget extends State<TaskWidget> {
                   ),
                   onChanged: (newValue) {
                     setState(() {
-
                       task.setStatus(newValue as String);
 
-                      
                       getIt<EventBus>().fire(ChangeStatusEvent(task));
                       updateLastEdited();
                     });
