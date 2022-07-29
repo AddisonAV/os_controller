@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:os_controller/ui/colors.dart';
+import 'package:os_controller/utils/StatusChangeNotifier.dart';
 import 'package:os_controller/utils/dataLoadEvent.dart';
 import 'package:os_controller/utils/task.dart';
 import 'package:os_controller/widgets/task_widget.dart';
@@ -8,6 +9,7 @@ import 'package:os_controller/utils/providers.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:os_controller/utils/change_status_event.dart';
 import 'package:os_controller/utils/status.dart';
+import 'package:os_controller/utils/StatusChangeNotifier.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -21,45 +23,18 @@ class _HomeScreenState extends State<HomeScreen> {
       newOSController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
 
-  ValueNotifier<List<Task>> tasks =
-      ValueNotifier([Task('Task 1'), Task('Task 2'), Task('Task 3')]);
-
-  ValueNotifier<Map<String, List<Task>>> tasksMap = ValueNotifier({
-    "BACKLOG": [],
-    "WORKING": [],
-    "FIXING": [],
-    "DONE": [],
-    "PAUSED": [],
-    "PAID": [],
-  });
-
-  void printTaskMap() {
-    for (String status in status.StatusList) {
-      for (Task task in tasksMap.value[status]!) {
-        print(task.name);
-      }
-    }
-  }
-
-  void updateTaskMap() {
-    for (String status in status.StatusList) {
-      tasksMap.value[status] =
-          tasks.value.where((task) => task.status == status).toList();
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     getIt<EventBus>().on<DataLoadEvent>().listen((event) {
       if (event.getEventResult()) {
         print(status.StatusList);
-        updateTaskMap();
+        taskUpdater.updateTaskMap();
         setState(() {});
       }
     });
 
-    updateTaskMap();
-    getIt<EventBus>().on<ChangeStatusEvent>().listen((event) {
+    //taskUpdater.updateTaskMap();
+    /*getIt<EventBus>().on<ChangeStatusEvent>().listen((event) {
       for (Task task in tasks.value) {
         if (task.id == event.getEventTaskId()) {
           task.setStatus(event.getStatus());
@@ -67,44 +42,32 @@ class _HomeScreenState extends State<HomeScreen> {
         }
       }
       //setState(() {});
-    });
+    });*/
 
     return Scaffold(
-      backgroundColor: AppColor.primaryColor,
-      appBar: AppBar(
-        elevation: 0.0,
         backgroundColor: AppColor.primaryColor,
-        centerTitle: true,
-        title: const Text("Ovo do breno"),
-        actions: [
-          IconButton(
-              onPressed: () {
-                setState(() {
-                  openDialog();
-                });
-              },
-              icon: const Icon(Icons.plus_one_outlined))
-        ],
-      ),
-      body: ValueListenableBuilder(
-        valueListenable: tasksMap,
-        builder: (context, Map<String, List<Task>> _tasks, child) {
-          return Column(
-            children: [
-              Expanded(
-                child: ListView.builder(
-                  itemCount: _tasks["BACKLOG"]?.length,
-                  itemBuilder: (context, index) {
-                    return TaskWidget(_tasks["BACKLOG"]![index].name,
-                        _tasks["BACKLOG"]![index].id);
-                  },
-                ),
-              ),
-            ],
-          );
-        },
-      ),
-    );
+        appBar: AppBar(
+          elevation: 0.0,
+          backgroundColor: AppColor.primaryColor,
+          centerTitle: true,
+          title: const Text("Ovo do breno"),
+          actions: [
+            IconButton(
+                onPressed: () {
+                  setState(() {
+                    openDialog();
+                  });
+                },
+                icon: const Icon(Icons.plus_one_outlined))
+          ],
+        ),
+        body: Center(
+          child: ValueListenableBuilder(
+              valueListenable: taskUpdater.tasksMap,
+              builder: (context, Map<String, List<TaskWidget>> _tasks, child) =>
+                  Column(children: _tasks["BACKLOG"]!)),
+        ));
+    ;
   }
 
   Future openDialog() => showDialog(
@@ -160,9 +123,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   borderRadius: BorderRadius.circular(5),
                                 ),
                               ),
-                              onChanged: (value) {
-                                print(value);
-                              },
+                              onChanged: (value) {},
                             ),
                           )),
                       Padding(
@@ -170,11 +131,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: ElevatedButton(
                           child: const Text("Create OS"),
                           onPressed: () {
-                            Task newTask = Task(newOSController.text);
-                            tasks.value.add(newTask);
-                            newTask.Save();
-                            updateTaskMap();
-                            setState(() {});
+
+                            taskUpdater.addTask(Task(newOSController.text, 10));
+                            taskUpdater.printTaskMap();
                             newOSController.clear();
                             Navigator.of(context).pop();
                           },

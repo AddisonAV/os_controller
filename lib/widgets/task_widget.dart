@@ -11,6 +11,7 @@ import 'package:os_controller/utils/task.dart';
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:os_controller/utils/status.dart';
 import 'package:event_bus/event_bus.dart';
+import 'package:os_controller/utils/StatusChangeNotifier.dart';
 
 //we can create more parameters if needed
 Container customContainer(Widget child,
@@ -30,16 +31,14 @@ Container customContainer(Widget child,
 }
 
 class TaskWidget extends StatefulWidget {
-  final String taskName;
-  final int taskId;
-  const TaskWidget(this.taskName, this.taskId, {Key? key}) : super(key: key);
+  final Task task;
+  const TaskWidget(this.task, {Key? key}) : super(key: key);
 
   @override
   State<TaskWidget> createState() => _TaskWidget();
 }
 
 class _TaskWidget extends State<TaskWidget> {
-  late Task task = Task(widget.taskName);
 
   double borderRadius = 9;
   late FocusNode focusNode;
@@ -55,7 +54,7 @@ class _TaskWidget extends State<TaskWidget> {
     int auxVal =
         int.parse(value.replaceAll(RegExp(r'[^0-9]'), '')) * costPerHour;
 
-    task.setTime(auxVal);
+    widget.task.setTime(auxVal);
     moneyController.text = "R\$" + auxVal.toString() + ".00";
   }
 
@@ -65,9 +64,6 @@ class _TaskWidget extends State<TaskWidget> {
         DateFormat.Hm().format(DateTime.now());
   }
 
-  void createTask(String taskName, int id) {
-    task = Task(taskName);
-  }
 
   @override
   void initState() {
@@ -81,7 +77,7 @@ class _TaskWidget extends State<TaskWidget> {
         setState(() {});
       }
     });
-    nameController.text = task.name;
+    nameController.text = widget.task.id.toString();
     updateLastEdited();
     return Container(
         padding: EdgeInsets.all(10),
@@ -93,7 +89,7 @@ class _TaskWidget extends State<TaskWidget> {
           Expanded(
             child: customContainer(
                 TextField(
-                    enabled: task.isTaskEnabled,
+                    enabled: widget.task.isTaskEnabled,
                     inputFormatters: [LengthLimitingTextInputFormatter(60)],
                     maxLines: null,
                     decoration: InputDecoration(
@@ -106,7 +102,7 @@ class _TaskWidget extends State<TaskWidget> {
                     controller: nameController,
                     onChanged: (String value) async {
                       updateLastEdited();
-                      task.setName(value);
+                      widget.task.setName(value);
                     }),
                 padding: EdgeInsets.all(0)),
           ),
@@ -122,7 +118,7 @@ class _TaskWidget extends State<TaskWidget> {
           Expanded(
             child: customContainer(
               Text(
-                task.getCreationDateStr(),
+                widget.task.getCreationDateStr(),
                 style: TextStyle(fontSize: 15),
                 textAlign: TextAlign.center,
               ),
@@ -146,7 +142,7 @@ class _TaskWidget extends State<TaskWidget> {
                 height: 50,
                 width: 100,
                 child: DropdownButton(
-                  value: task.getStatus(),
+                  value: widget.task.getStatus(),
                   icon: const Icon(Icons.arrow_downward, size: 15),
                   elevation: 20,
                   style: TextStyle(color: AppColor.taskColor),
@@ -156,9 +152,9 @@ class _TaskWidget extends State<TaskWidget> {
                   ),
                   onChanged: (newValue) {
                     setState(() {
-                      task.setStatus(newValue as String);
-
-                      getIt<EventBus>().fire(ChangeStatusEvent(task));
+                      widget.task.setStatus(newValue as String);
+                      taskUpdater.updateTask(widget.task);
+                      //getIt<EventBus>().fire(ChangeStatusEvent(task));
                       updateLastEdited();
                     });
                   },
@@ -174,7 +170,7 @@ class _TaskWidget extends State<TaskWidget> {
           Expanded(
               child: customContainer(
                   TextField(
-                    enabled: task.isTaskEnabled,
+                    enabled: widget.task.isTaskEnabled,
                     maxLines: null,
                     decoration: InputDecoration.collapsed(hintText: '0 H'),
                     style: TextStyle(fontSize: 15),
@@ -214,7 +210,7 @@ class _TaskWidget extends State<TaskWidget> {
                 alignment: Alignment.topRight,
                 child: InkResponse(
                   onTap: () {
-                    descController.text = task.getAnnotation();
+                    descController.text = widget.task.getAnnotation();
                     Navigator.of(context).pop();
                   },
                   child: const CircleAvatar(
@@ -248,13 +244,13 @@ class _TaskWidget extends State<TaskWidget> {
                       textAlign: TextAlign.center,
                       maxLines: null,
                       onSubmitted: (String value) async {
-                        descController.text = task.getAnnotation();
+                        descController.text = widget.task.getAnnotation();
                       })),
               Center(
                 child: ElevatedButton(
                   child: const Text("Save"),
                   onPressed: () {
-                    task.setAnnotation(descController.text);
+                    widget.task.setAnnotation(descController.text);
                     Navigator.of(context).pop();
                   },
                 ),
