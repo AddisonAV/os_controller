@@ -1,10 +1,12 @@
 // ignore_for_file: constant_identifier_names, non_constant_identifier_names
 import 'package:intl/intl.dart';
+import 'package:os_controller/utils/status.dart' as statusConnec;
+import 'package:os_controller/utils/taskConnection.dart';
 
 //enum Status { BACKLOG, WORKING, FIXING, DONE, PAUSED, PAID }
 
 class Task {
-  int id;
+  late int id;
   bool isTaskEnabled = true;
   String status = "BACKLOG";
   late DateTime creationDate;
@@ -14,9 +16,15 @@ class Task {
   String annotations = "";
   late double money = 0;
 
-  Task(this.name, this.id) {
+  Task(this.name) {
+    id = DateTime.now().millisecondsSinceEpoch;
     creationDate = DateTime.now();
     lastEditDate = creationDate;
+  }
+
+  void Save() {
+    TaskConnection taskConnection = TaskConnection();
+    taskConnection.insertTask(this);
   }
 
   @override
@@ -25,6 +33,10 @@ class Task {
       other is Task && runtimeType == other.runtimeType && id == other.id;
 
   bool operator <(Task other) => id < other.id;
+
+  int getId() {
+    return id;
+  }
 
   int getTime() {
     return time;
@@ -38,12 +50,20 @@ class Task {
     return lastEditDate;
   }
 
+  String getLastEditedDateFormatted() {
+    return '${lastEditDate.year}-${lastEditDate.month}-${lastEditDate.day}';
+  }
+
   DateTime getCreationDate() {
     return creationDate;
   }
 
+  String getCreationDateFormatted() {
+    return DateFormat('yyyy-MM-dd').format(creationDate);
+  }
+
   String getLastEditedDatetimeStr() {
-    return DateFormat("dd/MM/yyyy HH:mm").format(lastEditDate);
+    return '${creationDate.year}-${creationDate.month}-${creationDate.day}';
   }
 
   String getCreationDateStr() {
@@ -52,6 +72,10 @@ class Task {
 
   String getStatus() {
     return status;
+  }
+
+  String getStatusID() {
+    return statusConnec.status.findStatusID(status).toString();
   }
 
   String getName() {

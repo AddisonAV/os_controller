@@ -39,6 +39,7 @@ class TaskWidget extends StatefulWidget {
 }
 
 class _TaskWidget extends State<TaskWidget> {
+
   double borderRadius = 9;
   late FocusNode focusNode;
   final TextEditingController moneyController = TextEditingController();
@@ -62,6 +63,7 @@ class _TaskWidget extends State<TaskWidget> {
         " " +
         DateFormat.Hm().format(DateTime.now());
   }
+
 
   @override
   void initState() {
