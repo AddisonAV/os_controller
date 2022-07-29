@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:os_controller/ui/colors.dart';
+import 'package:os_controller/utils/dataLoadEvent.dart';
 import 'package:os_controller/utils/task.dart';
 import 'package:os_controller/widgets/task_widget.dart';
 import 'package:os_controller/utils/providers.dart';
@@ -33,8 +34,7 @@ class _HomeScreenState extends State<HomeScreen> {
   });
 
   void printTaskMap() {
-    for (String status in status.dataStatus) {
-      print("Status: " + status.toString() + "\n");
+    for (String status in status.StatusList) {
       for (Task task in tasksMap.value[status]!) {
         print(task.name);
       }
@@ -42,22 +42,23 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void updateTaskMap() {
-    for (String status in status.dataStatus) {
+    for (String status in status.StatusList) {
       tasksMap.value[status] =
           tasks.value.where((task) => task.status == status).toList();
     }
   }
 
-  void initializeTaskMap() {
-    for (Task task in tasks.value) {
-      tasksMap.value[task.status]?.add(task);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    initializeTaskMap();
-    printTaskMap();
+    getIt<EventBus>().on<DataLoadEvent>().listen((event) {
+      if (event.getEventResult()) {
+        print(status.StatusList);
+        updateTaskMap();
+        setState(() {});
+      }
+    });
+
+    updateTaskMap();
     getIt<EventBus>().on<ChangeStatusEvent>().listen((event) {
       for (Task task in tasks.value) {
         if (task.id == event.getEventTaskId()) {
@@ -65,13 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
           break;
         }
       }
-
-      updateTaskMap();
-      printTaskMap();
-      for (Task task in tasks.value) {
-        print(task.name + ": " + task.status.toString());
-      }
-      setState(() {});
+      //setState(() {});
     });
 
     return Scaffold(

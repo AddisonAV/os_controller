@@ -1,7 +1,7 @@
 // ignore_for_file: constant_identifier_names, non_constant_identifier_names
 import 'package:intl/intl.dart';
 
-enum Status { BACKLOG, WORKING, FIXING, DONE, PAUSED, PAID }
+//enum Status { BACKLOG, WORKING, FIXING, DONE, PAUSED, PAID }
 
 class Task {
   int id;
@@ -90,8 +90,4 @@ class Task {
   void setMoney(double newMoney) {
     money = newMoney;
   }
-
-  @override
-  // TODO: implement hashCode
-  int get hashCode => super.hashCode;
 }

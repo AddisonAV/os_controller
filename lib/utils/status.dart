@@ -7,6 +7,7 @@ import 'package:event_bus/event_bus.dart';
 
 class Status {
   List dataStatus = [];
+  List<String> StatusList = [];
   late DataLoadEvent dataLoadEvent;
 
   Status() {
@@ -20,6 +21,10 @@ class Status {
       var jsonData = json.decode(response.body);
       dataStatus = jsonData;
       dataLoadEvent = DataLoadEvent(true);
+
+      for (var aux in dataStatus) {
+        StatusList.add(aux['status']);
+      }
     } else {
       dataLoadEvent = DataLoadEvent(false);
       throw Exception('Failed to load status');
