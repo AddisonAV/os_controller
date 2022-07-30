@@ -11,10 +11,6 @@ class Status {
 
   late DataLoadEvent dataLoadEvent;
 
-  Status() {
-    getAllStatus();
-  }
-
   String? findStatusID(String status) {
     return statusID[status];
   }
