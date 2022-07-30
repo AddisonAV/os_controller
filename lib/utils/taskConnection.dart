@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:os_controller/utils/providers.dart';
+import 'package:os_controller/utils/status.dart';
 import 'package:os_controller/utils/task.dart';
 import 'package:http/http.dart' as http;
 import 'package:os_controller/utils/tasksLoadEvent.dart';
@@ -35,7 +36,16 @@ class TaskConnection {
       var jsonData = json.decode(response.body);
       taskLoadEvent = TaskLoadEvent(true);
       for (var aux in jsonData) {
-        tasks.add(Task(aux['name']));
+        Task task = Task.empty();
+        task.setData(
+            aux['id'],
+            aux['time'],
+            DateTime.parse(aux['lastEditDate']),
+            DateTime.parse(aux['creationDate']),
+            aux['name'],
+            aux['description'],
+            status.findStatus(aux['status'].toString()));
+        tasks.add(task);
       }
     } else {
       taskLoadEvent = TaskLoadEvent(false);

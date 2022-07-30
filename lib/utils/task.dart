@@ -16,6 +16,8 @@ class Task {
   String annotations = "";
   late double money = 0;
 
+  Task.empty();
+
   Task(this.name) {
     id = DateTime.now().millisecondsSinceEpoch;
     creationDate = DateTime.now();
@@ -99,6 +101,17 @@ class Task {
 
   void setAnnotation(String newAnnotation) {
     annotations = newAnnotation;
+  }
+
+  void setData(int id, int time, DateTime lastEditDate, DateTime creationDate,
+      String name, String annotations, String status) {
+    this.id = id;
+    this.name = name;
+    this.time = time;
+    this.lastEditDate = lastEditDate;
+    this.creationDate = creationDate;
+    this.annotations = annotations;
+    setStatus(status);
   }
 
   void setStatus(String newStatus) {
