@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_titled_container/flutter_titled_container.dart';
 import 'package:os_controller/ui/colors.dart';
 import 'package:os_controller/utils/StatusChangeNotifier.dart';
 import 'package:os_controller/utils/dataLoadEvent.dart';
@@ -34,6 +33,33 @@ List<Widget> buildTaskList(Map<String, List<TaskWidget>> tasks) {
   for (String Status in status.StatusList) {
     if (tasks[Status] != null && tasks[Status]!.isNotEmpty) {
       widgets.add(const SizedBox(height: 30));
+      widgets.add(
+        Container(
+          color: AppColor.primaryColor,
+          child: Text(
+            Status,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.blue,
+            ),
+          ),
+        ),
+      );
+      /*widgets.add(Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: const [
+          Text(
+            "Os Name",
+          ),
+          Text("Last Update"),
+          Text("Create at"),
+          Text("Annotations"),
+          Text("Status"),
+          Text("Time Spend"),
+          Text("Total Cost")
+        ],
+      ))*/
       widgets.add(
         tContainer(
             Status,
@@ -82,50 +108,32 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
         backgroundColor: AppColor.primaryColor,
         appBar: AppBar(
-          elevation: 0.0,
+          toolbarHeight: 70,
+          elevation: 50,
           backgroundColor: AppColor.primaryColor,
           centerTitle: true,
           title: const Text("Ovo do breno"),
           actions: [
-            IconButton(
-                onPressed: () {
-                  setState(() {
+            Padding(
+                padding: const EdgeInsets.only(right: 20, bottom: 15),
+                child: IconButton(
+                  onPressed: () {
                     openDialog();
-                  });
-                },
-                icon: const Icon(Icons.plus_one_outlined))
+                  },
+                  icon: const Icon(
+                    Icons.playlist_add_circle_outlined,
+                    size: 50,
+                  ),
+                  hoverColor: Colors.transparent,
+                  tooltip: "Add new OS",
+                ))
           ],
         ),
         body: Center(
             child: ValueListenableBuilder(
           valueListenable: taskUpdater.tasksMap,
           builder: (context, Map<String, List<TaskWidget>> _tasks, child) =>
-              Column(children: buildTaskList(_tasks)
-                  /*const SizedBox(height: 30),
-            tContainer(
-                "Backlog",
-                Column(
-                  children: _tasks["BACKLOG"]!,
-                )),
-            const SizedBox(height: 30),
-            tContainer(
-                "Working",
-                Column(
-                  children: _tasks["WORKING"]!,
-                )),
-            const SizedBox(height: 30),
-            tContainer(
-                "Fixing",
-                Column(
-                  children: _tasks["FIXING"]!,
-                )),
-            const SizedBox(height: 30),
-            tContainer(
-                "Done",
-                Column(
-                  children: _tasks["DONE"]!,
-                )),*/
-                  ),
+              Column(children: buildTaskList(_tasks)),
         )));
   }
 
