@@ -8,7 +8,7 @@ import 'package:os_controller/widgets/task_widget.dart';
 import 'package:event_bus/event_bus.dart';
 
 class TaskUpdater extends ChangeNotifier {
-  late final ValueNotifier<List<Task>> tasks;
+  late ValueNotifier<List<Task>> tasks = ValueNotifier([]);
 
   final ValueNotifier<Map<String, List<TaskWidget>>> tasksMap = ValueNotifier({
     "BACKLOG": [],
@@ -65,6 +65,9 @@ class TaskUpdater extends ChangeNotifier {
       }
     }
     updateTaskMap();
+    print("-------------------------------------------------");
+    printTaskMap();
+    print("-------------------------------------------------");
     notifyListeners();
   }
 }

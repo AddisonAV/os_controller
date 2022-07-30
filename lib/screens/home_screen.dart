@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_titled_container/flutter_titled_container.dart';
 import 'package:os_controller/ui/colors.dart';
 import 'package:os_controller/utils/StatusChangeNotifier.dart';
 import 'package:os_controller/utils/dataLoadEvent.dart';
@@ -10,6 +11,40 @@ import 'package:event_bus/event_bus.dart';
 import 'package:os_controller/utils/change_status_event.dart';
 import 'package:os_controller/utils/status.dart';
 import 'package:os_controller/utils/StatusChangeNotifier.dart';
+
+Container tContainer(String title, Widget child) {
+  return Container(
+    child: Container(
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Colors.blue,
+        ),
+        borderRadius: const BorderRadius.all(
+          Radius.circular(10.0),
+        ),
+      ),
+      child: child,
+    ),
+  );
+}
+
+List<Widget> buildTaskList(Map<String, List<TaskWidget>> tasks) {
+  List<Widget> widgets = [];
+
+  for (String Status in status.StatusList) {
+    if (tasks[Status] != null && tasks[Status]!.isNotEmpty) {
+      widgets.add(const SizedBox(height: 30));
+      widgets.add(
+        tContainer(
+            Status,
+            Column(
+              children: tasks[Status]!,
+            )),
+      );
+    }
+  }
+  return widgets;
+}
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -26,11 +61,10 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     status.getAllStatus();
+
     getIt<EventBus>().on<DataLoadEvent>().listen((event) {
       if (event.getEventResult()) {
-        print(status.StatusList);
         taskUpdater.updateTaskMap();
-        setState(() {});
       }
     });
 
@@ -63,12 +97,36 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         body: Center(
-          child: ValueListenableBuilder(
-              valueListenable: taskUpdater.tasksMap,
-              builder: (context, Map<String, List<TaskWidget>> _tasks, child) =>
-                  Column(children: _tasks["BACKLOG"]!)),
-        ));
-    ;
+            child: ValueListenableBuilder(
+          valueListenable: taskUpdater.tasksMap,
+          builder: (context, Map<String, List<TaskWidget>> _tasks, child) =>
+              Column(children: buildTaskList(_tasks)
+                  /*const SizedBox(height: 30),
+            tContainer(
+                "Backlog",
+                Column(
+                  children: _tasks["BACKLOG"]!,
+                )),
+            const SizedBox(height: 30),
+            tContainer(
+                "Working",
+                Column(
+                  children: _tasks["WORKING"]!,
+                )),
+            const SizedBox(height: 30),
+            tContainer(
+                "Fixing",
+                Column(
+                  children: _tasks["FIXING"]!,
+                )),
+            const SizedBox(height: 30),
+            tContainer(
+                "Done",
+                Column(
+                  children: _tasks["DONE"]!,
+                )),*/
+                  ),
+        )));
   }
 
   Future openDialog() => showDialog(
