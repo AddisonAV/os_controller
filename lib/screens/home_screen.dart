@@ -11,6 +11,67 @@ import 'package:os_controller/utils/change_status_event.dart';
 import 'package:os_controller/utils/status.dart';
 import 'package:os_controller/utils/StatusChangeNotifier.dart';
 
+Container tContainer(String title, Widget child) {
+  return Container(
+    child: Container(
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Colors.blue,
+        ),
+        borderRadius: const BorderRadius.all(
+          Radius.circular(10.0),
+        ),
+      ),
+      child: child,
+    ),
+  );
+}
+
+List<Widget> buildTaskList(Map<String, List<TaskWidget>> tasks) {
+  List<Widget> widgets = [];
+
+  for (String Status in status.StatusList) {
+    if (tasks[Status] != null && tasks[Status]!.isNotEmpty) {
+      widgets.add(const SizedBox(height: 30));
+      widgets.add(
+        Container(
+          color: AppColor.primaryColor,
+          child: Text(
+            Status,
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.blue,
+            ),
+          ),
+        ),
+      );
+      /*widgets.add(Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: const [
+          Text(
+            "Os Name",
+          ),
+          Text("Last Update"),
+          Text("Create at"),
+          Text("Annotations"),
+          Text("Status"),
+          Text("Time Spend"),
+          Text("Total Cost")
+        ],
+      ))*/
+      widgets.add(
+        tContainer(
+            Status,
+            Column(
+              children: tasks[Status]!,
+            )),
+      );
+    }
+  }
+  return widgets;
+}
+
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
 
@@ -26,11 +87,10 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     status.getAllStatus();
+
     getIt<EventBus>().on<DataLoadEvent>().listen((event) {
       if (event.getEventResult()) {
-        print(status.StatusList);
         taskUpdater.updateTaskMap();
-        setState(() {});
       }
     });
 
@@ -48,27 +108,33 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
         backgroundColor: AppColor.primaryColor,
         appBar: AppBar(
-          elevation: 0.0,
+          toolbarHeight: 70,
+          elevation: 50,
           backgroundColor: AppColor.primaryColor,
           centerTitle: true,
           title: const Text("Ovo do breno"),
           actions: [
-            IconButton(
-                onPressed: () {
-                  setState(() {
+            Padding(
+                padding: const EdgeInsets.only(right: 20, bottom: 15),
+                child: IconButton(
+                  onPressed: () {
                     openDialog();
-                  });
-                },
-                icon: const Icon(Icons.plus_one_outlined))
+                  },
+                  icon: const Icon(
+                    Icons.playlist_add_circle_outlined,
+                    size: 50,
+                  ),
+                  hoverColor: Colors.transparent,
+                  tooltip: "Add new OS",
+                ))
           ],
         ),
         body: Center(
-          child: ValueListenableBuilder(
-              valueListenable: taskUpdater.tasksMap,
-              builder: (context, Map<String, List<TaskWidget>> _tasks, child) =>
-                  Column(children: _tasks["BACKLOG"]!)),
-        ));
-    ;
+            child: ValueListenableBuilder(
+          valueListenable: taskUpdater.tasksMap,
+          builder: (context, Map<String, List<TaskWidget>> _tasks, child) =>
+              Column(children: buildTaskList(_tasks)),
+        )));
   }
 
   Future openDialog() => showDialog(
