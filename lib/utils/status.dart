@@ -15,6 +15,16 @@ class Status {
     return statusID[status];
   }
 
+  String findStatus(String ID) {
+    String result = '';
+    statusID.forEach((key, value) {
+      if (value == ID) {
+        result = key;
+      }
+    });
+    return result;
+  }
+
   Future getAllStatus() async {
     final response = await http.get(Uri.parse('http://localhost:9898/status'));
 
