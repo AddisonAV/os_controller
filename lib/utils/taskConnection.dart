@@ -54,7 +54,23 @@ class TaskConnection {
     getIt<EventBus>().fire(taskLoadEvent);
   }
 
-  void updateTask(Task task) {}
+  Future<http.Response> update(Task task) {
+    return http.put(
+      Uri.parse('http://localhost:9898/update'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        "id": task.getId().toString(),
+        "name": task.getName(),
+        "description": task.getAnnotation(),
+        "creationDate": task.getCreationDateFormatted(),
+        "lastEditDate": task.getLastEditedDateFormatted(),
+        "time": task.getTime().toString(),
+        "status": task.getStatusID(),
+      }),
+    );
+  }
 }
 
 TaskConnection taskConnection = TaskConnection();

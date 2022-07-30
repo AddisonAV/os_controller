@@ -89,32 +89,44 @@ class Task {
 
   void setName(String name) {
     this.name = name;
+    taskConnection.update(this);
   }
 
   void setTime(int newTime) {
     time = newTime;
+    taskConnection.update(this);
   }
 
   void setLastEditedDate(DateTime newDate) {
     lastEditDate = newDate;
+    taskConnection.update(this);
   }
 
   void setAnnotation(String newAnnotation) {
     annotations = newAnnotation;
+    taskConnection.update(this);
+  }
+
+  void setStatus(
+    String newStatus,
+  ) {
+    if (newStatus == "PAID") {
+      isTaskEnabled = false;
+    } else {
+      isTaskEnabled = true;
+    }
+    status = newStatus;
+    taskConnection.update(this);
   }
 
   void setData(int id, int time, DateTime lastEditDate, DateTime creationDate,
-      String name, String annotations, String status) {
+      String name, String annotations, String newStatus) {
     this.id = id;
     this.name = name;
     this.time = time;
     this.lastEditDate = lastEditDate;
     this.creationDate = creationDate;
     this.annotations = annotations;
-    setStatus(status);
-  }
-
-  void setStatus(String newStatus) {
     if (newStatus == "PAID") {
       isTaskEnabled = false;
     } else {
