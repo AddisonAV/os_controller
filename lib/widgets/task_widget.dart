@@ -12,6 +12,7 @@ import 'package:currency_text_input_formatter/currency_text_input_formatter.dart
 import 'package:os_controller/utils/status.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:os_controller/utils/StatusChangeNotifier.dart';
+import 'package:os_controller/utils/tasksLoadEvent.dart';
 
 //we can create more parameters if needed
 Container customContainer(Widget child,
@@ -71,6 +72,11 @@ class _TaskWidget extends State<TaskWidget> {
   @override
   Widget build(BuildContext context) {
     getIt<EventBus>().on<DataLoadEvent>().listen((event) {
+      if (event.getEventResult()) {
+        setState(() {});
+      }
+    });
+    getIt<EventBus>().on<TaskLoadEvent>().listen((event) {
       if (event.getEventResult()) {
         setState(() {});
       }
