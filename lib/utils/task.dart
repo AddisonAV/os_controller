@@ -23,7 +23,6 @@ class Task {
   }
 
   void Save() {
-    TaskConnection taskConnection = TaskConnection();
     taskConnection.insertTask(this);
   }
 

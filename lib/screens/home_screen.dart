@@ -25,6 +25,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    status.getAllStatus();
     getIt<EventBus>().on<DataLoadEvent>().listen((event) {
       if (event.getEventResult()) {
         print(status.StatusList);
@@ -131,7 +132,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         child: ElevatedButton(
                           child: const Text("Create OS"),
                           onPressed: () {
-                            taskUpdater.addTask(Task(newOSController.text));
+                            Task task = Task(newOSController.text);
+                            taskUpdater.addTask(task);
+                            task.Save();
                             taskUpdater.printTaskMap();
                             newOSController.clear();
                             Navigator.of(context).pop();

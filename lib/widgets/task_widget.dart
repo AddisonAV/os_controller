@@ -39,7 +39,6 @@ class TaskWidget extends StatefulWidget {
 }
 
 class _TaskWidget extends State<TaskWidget> {
-
   double borderRadius = 9;
   late FocusNode focusNode;
   final TextEditingController moneyController = TextEditingController();
@@ -64,7 +63,6 @@ class _TaskWidget extends State<TaskWidget> {
         DateFormat.Hm().format(DateTime.now());
   }
 
-
   @override
   void initState() {
     super.initState();
@@ -77,7 +75,7 @@ class _TaskWidget extends State<TaskWidget> {
         setState(() {});
       }
     });
-    nameController.text = widget.task.id.toString();
+    nameController.text = widget.task.getName();
     updateLastEdited();
     return Container(
         padding: EdgeInsets.all(10),

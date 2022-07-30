@@ -1,11 +1,14 @@
 import 'package:flutter/cupertino.dart';
+import 'package:os_controller/utils/providers.dart';
 import 'package:os_controller/utils/task.dart';
 import 'package:os_controller/utils/status.dart';
+import 'package:os_controller/utils/taskConnection.dart';
+import 'package:os_controller/utils/tasksLoadEvent.dart';
 import 'package:os_controller/widgets/task_widget.dart';
+import 'package:event_bus/event_bus.dart';
 
 class TaskUpdater extends ChangeNotifier {
-  final ValueNotifier<List<Task>> tasks =
-      ValueNotifier([Task('Task 1'), Task('Task 2'), Task('Task 3')]);
+  late final ValueNotifier<List<Task>> tasks;
 
   final ValueNotifier<Map<String, List<TaskWidget>>> tasksMap = ValueNotifier({
     "BACKLOG": [],
@@ -15,8 +18,15 @@ class TaskUpdater extends ChangeNotifier {
     "PAUSED": [],
     "PAID": [],
   });
+
   TaskUpdater() {
-    updateTaskMap();
+    taskConnection.getTasks();
+    getIt<EventBus>().on<TaskLoadEvent>().listen((event) {
+      if (event.getEventResult()) {
+        tasks = ValueNotifier(taskConnection.tasks);
+        updateTaskMap();
+      }
+    });
   }
   void updateTaskMap() {
     tasksMap.value = {
