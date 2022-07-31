@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:os_controller/ui/colors.dart';
@@ -10,6 +12,9 @@ import 'package:event_bus/event_bus.dart';
 import 'package:os_controller/utils/change_status_event.dart';
 import 'package:os_controller/utils/status.dart';
 import 'package:os_controller/utils/StatusChangeNotifier.dart';
+
+// ignore: non_constant_identifier_names
+bool initial_load = false;
 
 Container tContainer(String title, Widget child) {
   return Container(
@@ -30,6 +35,7 @@ Container tContainer(String title, Widget child) {
 List<Widget> buildTaskList(Map<String, List<TaskWidget>> tasks) {
   List<Widget> widgets = [];
 
+  // ignore: non_constant_identifier_names
   for (String Status in status.StatusList) {
     if (tasks[Status] != null && tasks[Status]!.isNotEmpty) {
       widgets.add(const SizedBox(height: 30));
@@ -38,7 +44,7 @@ List<Widget> buildTaskList(Map<String, List<TaskWidget>> tasks) {
           color: AppColor.primaryColor,
           child: Text(
             Status,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
               color: Colors.blue,
@@ -46,20 +52,6 @@ List<Widget> buildTaskList(Map<String, List<TaskWidget>> tasks) {
           ),
         ),
       );
-      /*widgets.add(Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
-          Text(
-            "Os Name",
-          ),
-          Text("Last Update"),
-          Text("Create at"),
-          Text("Annotations"),
-          Text("Status"),
-          Text("Time Spend"),
-          Text("Total Cost")
-        ],
-      ))*/
       widgets.add(
         tContainer(
             Status,
@@ -83,6 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController descController = TextEditingController(),
       newOSController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
+  Widget _body = CircularProgressIndicator();
 
   @override
   Widget build(BuildContext context) {
@@ -94,17 +87,6 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     });
 
-    //taskUpdater.updateTaskMap();
-    /*getIt<EventBus>().on<ChangeStatusEvent>().listen((event) {
-      for (Task task in tasks.value) {
-        if (task.id == event.getEventTaskId()) {
-          task.setStatus(event.getStatus());
-          break;
-        }
-      }
-      //setState(() {});
-    });*/
-
     return Scaffold(
         backgroundColor: AppColor.primaryColor,
         appBar: AppBar(
@@ -114,26 +96,29 @@ class _HomeScreenState extends State<HomeScreen> {
           centerTitle: true,
           title: const Text("Ovo do breno"),
           actions: [
-            Padding(
-                padding: const EdgeInsets.only(right: 20, bottom: 15),
-                child: IconButton(
-                  onPressed: () {
-                    openDialog();
-                  },
-                  icon: const Icon(
-                    Icons.playlist_add_circle_outlined,
-                    size: 50,
-                  ),
-                  hoverColor: Colors.transparent,
-                  tooltip: "Add new OS",
-                ))
+            IconButton(
+              padding: const EdgeInsets.only(right: 35, bottom: 5),
+              onPressed: () {
+                openDialog();
+              },
+              icon: const Icon(
+                Icons.playlist_add_circle_outlined,
+                size: 45,
+              ),
+              hoverColor: Colors.transparent,
+              tooltip: "Add new OS",
+            )
           ],
         ),
-        body: Center(
-            child: ValueListenableBuilder(
-          valueListenable: taskUpdater.tasksMap,
-          builder: (context, Map<String, List<TaskWidget>> _tasks, child) =>
-              Column(children: buildTaskList(_tasks)),
+        body: SingleChildScrollView(
+            child: Padding(
+          padding:
+              const EdgeInsets.only(top: 5, bottom: 20, right: 200, left: 200),
+          child: ValueListenableBuilder(
+            valueListenable: taskUpdater.tasksMap,
+            builder: (context, Map<String, List<TaskWidget>> _tasks, child) =>
+                Column(children: buildTaskList(_tasks)),
+          ),
         )));
   }
 
