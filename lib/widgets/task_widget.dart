@@ -4,7 +4,6 @@ import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:os_controller/ui/colors.dart';
 import 'package:flutter/material.dart';
-import 'package:os_controller/utils/change_status_event.dart';
 import 'package:os_controller/utils/dataLoadEvent.dart';
 import 'package:os_controller/utils/providers.dart';
 import 'package:os_controller/utils/task.dart';
@@ -48,14 +47,24 @@ class _TaskWidget extends State<TaskWidget> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController lastEditedController = TextEditingController();
 
+  void initializeWidget() {
+    nameController.text = widget.task.name;
+    timeController.text = widget.task.time.toString() + " H";
+    moneyController.text =
+        "R\$" + (widget.task.time * costPerHour).toString() + ".00";
+    descController.text = widget.task.annotations;
+    lastEditedController.text = widget.task.getLastEditedDatetimeStr();
+  }
+
   int costPerHour = 20;
 
   void updateMoney(String value) {
-    int auxVal =
-        int.parse(value.replaceAll(RegExp(r'[^0-9]'), '')) * costPerHour;
+    if (value != "") {
+      int auxVal = int.parse(value.replaceAll(RegExp(r'[^0-9]'), ''));
 
-    widget.task.setTime(auxVal);
-    moneyController.text = "R\$" + auxVal.toString() + ".00";
+      widget.task.setTime(auxVal);
+      moneyController.text = "R\$" + (auxVal * costPerHour).toString() + ".00";
+    }
   }
 
   void updateLastEdited() {
@@ -65,12 +74,8 @@ class _TaskWidget extends State<TaskWidget> {
   }
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
+    initializeWidget();
     getIt<EventBus>().on<DataLoadEvent>().listen((event) {
       if (event.getEventResult()) {
         setState(() {});
@@ -81,8 +86,6 @@ class _TaskWidget extends State<TaskWidget> {
         setState(() {});
       }
     });
-    nameController.text = widget.task.getName();
-    updateLastEdited();
     return Container(
         padding: EdgeInsets.all(10),
         child: Row(children: <Widget>[

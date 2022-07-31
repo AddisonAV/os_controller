@@ -20,12 +20,9 @@ class TaskUpdater extends ChangeNotifier {
   });
 
   TaskUpdater() {
-    taskConnection.getTasks();
-    getIt<EventBus>().on<TaskLoadEvent>().listen((event) {
-      if (event.getEventResult()) {
-        tasks = ValueNotifier(taskConnection.tasks);
-        updateTaskMap();
-      }
+    taskConnection.getTasks().then((value) {
+      tasks = ValueNotifier(taskConnection.tasks);
+      updateTaskMap();
     });
   }
   void updateTaskMap() {
@@ -37,7 +34,12 @@ class TaskUpdater extends ChangeNotifier {
       "PAUSED": [],
       "PAID": [],
     };
+    print("Entrou aqui uma vez");
+    //for (Task t in tasks.value) {
+    //t.printTask();
+    //}
     for (Task task in tasks.value) {
+      task.printTask();
       tasksMap.value[task.status]!.add(TaskWidget(task));
     }
   }

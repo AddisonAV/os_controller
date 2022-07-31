@@ -1,4 +1,4 @@
-// ignore_for_file: constant_identifier_names, non_constant_identifier_names
+// ignore_for_file: constant_identifier_names, non_constant_identifier_names, avoid_print
 import 'package:intl/intl.dart';
 import 'package:os_controller/utils/status.dart' as statusConnec;
 import 'package:os_controller/utils/taskConnection.dart';
@@ -105,6 +105,18 @@ class Task {
   void setAnnotation(String newAnnotation) {
     annotations = newAnnotation;
     taskConnection.update(this);
+  }
+
+  void printTask() {
+    print("-------------------");
+    print("id: $id");
+    print("name: $name");
+    print("description: $annotations");
+    print("creationDate: $creationDate");
+    print("lastEditDate: $lastEditDate");
+    print("time: $time");
+    print("status: $status");
+    print("-------------------");
   }
 
   void setStatus(
