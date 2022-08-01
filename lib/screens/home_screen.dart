@@ -36,7 +36,7 @@ List<Widget> buildTaskList(Map<String, List<TaskWidget>> tasks) {
   List<Widget> widgets = [];
 
   // ignore: non_constant_identifier_names
-  for (String Status in status.StatusList) {
+  for (String Status in status.statusList) {
     if (tasks[Status] != null && tasks[Status]!.isNotEmpty) {
       widgets.add(const SizedBox(height: 30));
       widgets.add(
@@ -52,6 +52,90 @@ List<Widget> buildTaskList(Map<String, List<TaskWidget>> tasks) {
           ),
         ),
       );
+      /*widgets.add(
+        Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly, children: const [
+          Expanded(
+            child: Center(
+              child: Text(
+                "Task Name",
+                style: TextStyle(
+                  color: Colors.blue,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: Text(
+                "Created At",
+                style: TextStyle(
+                  color: Colors.blue,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: Text(
+                "Last Edited",
+                style: TextStyle(
+                  color: Colors.blue,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: Text(
+                "Annotations",
+                style: TextStyle(
+                  color: Colors.blue,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: Text(
+                "Status",
+                style: TextStyle(
+                  color: Colors.blue,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: Text(
+                "Time Spent",
+                style: TextStyle(
+                  color: Colors.blue,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: Text(
+                "Cost",
+                style: TextStyle(
+                  color: Colors.blue,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Center(
+              child: Text(
+                "Delete Task",
+                style: TextStyle(
+                  color: Colors.blue,
+                ),
+              ),
+            ),
+          )
+        ]),
+      );*/
       widgets.add(
         tContainer(
             Status,
@@ -75,17 +159,17 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController descController = TextEditingController(),
       newOSController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  Widget _body = CircularProgressIndicator();
 
   @override
   Widget build(BuildContext context) {
-    status.getAllStatus();
+    status.getAllStatus().then((value) => taskUpdater.createMap());
 
-    getIt<EventBus>().on<DataLoadEvent>().listen((event) {
+    /*getIt<EventBus>().on<DataLoadEvent>().listen((event) {
       if (event.getEventResult()) {
+        print("entrou aqui");
         taskUpdater.updateTaskMap();
       }
-    });
+    });*/
 
     return Scaffold(
         backgroundColor: AppColor.primaryColor,
@@ -99,14 +183,14 @@ class _HomeScreenState extends State<HomeScreen> {
             IconButton(
               padding: const EdgeInsets.only(right: 35, bottom: 5),
               onPressed: () {
-                openDialog();
+                openNewTaskDialog();
               },
               icon: const Icon(
                 Icons.playlist_add_circle_outlined,
                 size: 45,
               ),
               hoverColor: Colors.transparent,
-              tooltip: "Add new OS",
+              tooltip: "Add new Task",
             )
           ],
         ),
@@ -122,7 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
         )));
   }
 
-  Future openDialog() => showDialog(
+  Future openNewTaskDialog() => showDialog(
       context: context,
       builder: (BuildContext context) => AlertDialog(
             content: Stack(
@@ -151,12 +235,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       const Padding(
                         padding: EdgeInsets.all(8),
                         child: Text(
-                          "Create new OS",
+                          "Create new Task",
                           style: TextStyle(fontSize: 20, color: Colors.white),
                         ),
                       ),
                       Padding(
-                          padding: const EdgeInsets.all(8.0),
+                          padding: const EdgeInsets.all(10),
                           child: SizedBox(
                             height: 40,
                             width: MediaQuery.of(context).size.width / 4,
@@ -170,7 +254,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                   fontStyle: FontStyle.italic),
                               textAlign: TextAlign.center,
                               decoration: InputDecoration(
-                                hintText: "Enter os Name",
+                                hintText: "Task Name",
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(5),
                                 ),
@@ -181,7 +265,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       Padding(
                         padding: const EdgeInsets.all(8.0),
                         child: ElevatedButton(
-                          child: const Text("Create OS"),
+                          child: const Text("Create Task"),
                           onPressed: () {
                             Task task = Task(newOSController.text);
                             taskUpdater.addTask(task);
