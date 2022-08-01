@@ -79,7 +79,9 @@ class _TaskWidget extends State<TaskWidget> {
     initializeWidget();
     getIt<EventBus>().on<DataLoadEvent>().listen((event) {
       if (event.getEventResult()) {
-        setState(() {});
+        setState(() {
+          print("resetou o estado");
+        });
       }
     });
     getIt<EventBus>().on<TaskLoadEvent>().listen((event) {

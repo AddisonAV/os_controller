@@ -15,6 +15,23 @@ class Status {
     return statusID[status];
   }
 
+  bool addStatus(String status) {
+    if (!statusList.contains(status)) {
+      statusList.add(status);
+      statusID[status] = statusList.length.toString();
+      dataStatus.add({
+        "id": statusList.length.toString(),
+        "status": status,
+      });
+      getIt<EventBus>().fire(DataLoadEvent(true));
+
+      //ADICIONAR OS METODOS HTTP PARA ADICIONAR UM NOVO STATUS
+      return true;
+    }
+
+    return false;
+  }
+
   String findStatus(String ID) {
     String result = '';
     statusID.forEach((key, value) {

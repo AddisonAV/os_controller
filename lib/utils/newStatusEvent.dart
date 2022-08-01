@@ -1,0 +1,3 @@
+class NewStatusEvent {
+  NewStatusEvent();
+}
