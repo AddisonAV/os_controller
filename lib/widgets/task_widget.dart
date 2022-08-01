@@ -11,6 +11,7 @@ import 'package:currency_text_input_formatter/currency_text_input_formatter.dart
 import 'package:os_controller/utils/status.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:os_controller/utils/StatusChangeNotifier.dart';
+import 'package:os_controller/utils/taskConnection.dart';
 import 'package:os_controller/utils/tasksLoadEvent.dart';
 
 //we can create more parameters if needed
@@ -89,7 +90,7 @@ class _TaskWidget extends State<TaskWidget> {
     return Container(
         padding: EdgeInsets.all(10),
         child: Row(children: <Widget>[
-          const SizedBox(height: 10),
+          //const SizedBox(height: 10),
           const Padding(
             padding: EdgeInsets.all(20.0),
           ),
@@ -101,7 +102,7 @@ class _TaskWidget extends State<TaskWidget> {
                     maxLines: null,
                     decoration: InputDecoration(
                       border: InputBorder.none,
-                      hintText: "Nome da tarefa",
+                      hintText: "Task name",
                       hintStyle: TextStyle(color: Colors.grey),
                     ),
                     style: TextStyle(fontSize: 15),
@@ -133,14 +134,13 @@ class _TaskWidget extends State<TaskWidget> {
           ),
           Expanded(
               child: Container(
-                  padding: EdgeInsets.all(4),
+                  padding:
+                      EdgeInsets.only(bottom: 5, right: 5, left: 5, top: 5),
                   child: IconButton(
-                    icon: const Icon(Icons.comment),
+                    icon: const Icon(Icons.assignment_outlined),
                     tooltip: 'Annotations',
                     onPressed: () {
-                      setState(() {
-                        openDialog();
-                      });
+                      openAnnotationDialog();
                     },
                   ))),
           Padding(
@@ -161,7 +161,6 @@ class _TaskWidget extends State<TaskWidget> {
                     setState(() {
                       widget.task.setStatus(newValue as String);
                       taskUpdater.updateTask(widget.task);
-                      //getIt<EventBus>().fire(ChangeStatusEvent(task));
                       updateLastEdited();
                     });
                   },
@@ -204,11 +203,100 @@ class _TaskWidget extends State<TaskWidget> {
                   controller: moneyController,
                 ),
                 padding: EdgeInsets.all(20)),
-          )
+          ),
+          Expanded(
+              child: Container(
+                  padding: EdgeInsets.all(4),
+                  child: IconButton(
+                    icon: const Icon(Icons.delete),
+                    tooltip: 'Delete Task',
+                    onPressed: () {
+                      openDeleteDialog();
+                    },
+                  )))
         ]));
   }
 
-  Future openDialog() => showDialog(
+  Future openDeleteDialog() => showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+              content: Wrap(
+            children: [
+              Align(
+                alignment: Alignment.topRight,
+                child: InkResponse(
+                  onTap: () {
+                    descController.text = widget.task.getAnnotation();
+                    Navigator.of(context).pop();
+                  },
+                  child: const CircleAvatar(
+                    backgroundColor: Colors.transparent,
+                    child: Icon(
+                      Icons.close,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ),
+              Align(
+                  alignment: Alignment.center,
+                  child: Padding(
+                    padding: EdgeInsets.all(20),
+                    child: Text(
+                      'Are you sure you want to delete this task?',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                  )),
+              Align(
+                alignment: Alignment.center,
+                child: Text(
+                  'This action cannot be undone.',
+                  style: TextStyle(fontSize: 15),
+                ),
+              ),
+              Padding(
+                  padding:
+                      EdgeInsets.only(top: 40, bottom: 10, left: 10, right: 10),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.all(10),
+                          child: ElevatedButton(
+                            child: Text(
+                              'Delete Task',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            onPressed: () {
+                              taskConnection.deleteTask(widget.task);
+                              taskUpdater.removeTask(widget.task);
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: EdgeInsets.all(10),
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                                primary: Colors.transparent),
+                            child: Text(
+                              'Cancel',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            onPressed: () {
+                              Navigator.of(context).pop();
+                            },
+                          ),
+                        ),
+                      )
+                    ],
+                  ))
+            ],
+          )));
+
+  Future openAnnotationDialog() => showDialog(
       context: context,
       builder: (context) => AlertDialog(
               content: Wrap(

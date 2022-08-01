@@ -29,6 +29,22 @@ class TaskConnection {
     );
   }
 
+  Future<http.Response> deleteTask(Task task) async {
+    final resp = await http.delete(Uri.parse('http://localhost:9898/delete'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, String>{
+          "id": task.getId().toString(),
+        }));
+
+    if (resp.statusCode == 200) {
+      return resp;
+    } else {
+      throw Exception('Failed to delete task');
+    }
+  }
+
   Future getTasks() async {
     final response = await http.get(Uri.parse('http://localhost:9898/tasks'));
 

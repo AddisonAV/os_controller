@@ -6,7 +6,7 @@ import 'package:event_bus/event_bus.dart';
 
 class Status {
   List dataStatus = [];
-  List<String> StatusList = [];
+  List<String> statusList = [];
   Map<String, String> statusID = {};
 
   late DataLoadEvent dataLoadEvent;
@@ -34,7 +34,7 @@ class Status {
       dataLoadEvent = DataLoadEvent(true);
 
       for (var aux in dataStatus) {
-        StatusList.add(aux['status']);
+        statusList.add(aux['status']);
         statusID.addAll({aux['status']: aux['id'].toString()});
       }
     } else {
