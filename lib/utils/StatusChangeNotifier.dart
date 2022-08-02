@@ -34,10 +34,10 @@ class TaskUpdater extends ChangeNotifier {
       "PAUSED": [],
       "PAID": [],
     };
-
     for (Task task in tasks.value) {
       tasksMap.value[task.status]!.add(TaskWidget(task));
     }
+
     notifyListeners();
   }
 

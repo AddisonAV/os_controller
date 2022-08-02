@@ -24,7 +24,7 @@ Container customContainer(Widget child,
     decoration: BoxDecoration(
       border: Border.all(color: AppColor.taskColor),
       borderRadius: BorderRadius.all(
-        Radius.circular(9),
+        Radius.circular(1),
       ),
     ),
     child: child,
@@ -54,7 +54,7 @@ class _TaskWidget extends State<TaskWidget> {
     moneyController.text =
         "R\$" + (widget.task.time * costPerHour).toString() + ".00";
     descController.text = widget.task.annotations;
-    lastEditedController.text = widget.task.getLastEditedDatetimeStr();
+    lastEditedController.text = widget.task.getLastEditedDate();
   }
 
   int costPerHour = 20;
@@ -70,8 +70,9 @@ class _TaskWidget extends State<TaskWidget> {
 
   void updateLastEdited() {
     lastEditedController.text = DateFormat.yMMMd().format(DateTime.now()) +
-        " " +
+        " - " +
         DateFormat.Hm().format(DateTime.now());
+    widget.task.lastEditDate = lastEditedController.text;
   }
 
   @override
@@ -79,9 +80,7 @@ class _TaskWidget extends State<TaskWidget> {
     initializeWidget();
     getIt<EventBus>().on<DataLoadEvent>().listen((event) {
       if (event.getEventResult()) {
-        setState(() {
-          print("resetou o estado");
-        });
+        setState(() {});
       }
     });
     getIt<EventBus>().on<TaskLoadEvent>().listen((event) {
@@ -111,7 +110,10 @@ class _TaskWidget extends State<TaskWidget> {
                     textAlign: TextAlign.center,
                     controller: nameController,
                     onChanged: (String value) async {
-                      updateLastEdited();
+                      setState(() {
+                        updateLastEdited();
+                      });
+
                       widget.task.setName(value);
                     }),
                 padding: EdgeInsets.all(0)),
@@ -119,7 +121,7 @@ class _TaskWidget extends State<TaskWidget> {
           Expanded(
             child: customContainer(
               Text(
-                lastEditedController.text,
+                widget.task.getCreationDateStr(),
                 style: TextStyle(fontSize: 15),
                 textAlign: TextAlign.center,
               ),
@@ -128,7 +130,7 @@ class _TaskWidget extends State<TaskWidget> {
           Expanded(
             child: customContainer(
               Text(
-                widget.task.getCreationDateStr(),
+                lastEditedController.text,
                 style: TextStyle(fontSize: 15),
                 textAlign: TextAlign.center,
               ),
@@ -154,16 +156,16 @@ class _TaskWidget extends State<TaskWidget> {
                   value: widget.task.getStatus(),
                   icon: const Icon(Icons.arrow_downward, size: 15),
                   elevation: 20,
-                  style: TextStyle(color: AppColor.taskColor),
+                  style: TextStyle(color: Colors.white),
                   underline: Container(
                     height: 1,
-                    color: Colors.deepPurpleAccent,
+                    color: Color.fromARGB(255, 91, 32, 255),
                   ),
                   onChanged: (newValue) {
                     setState(() {
+                      updateLastEdited();
                       widget.task.setStatus(newValue as String);
                       taskUpdater.updateTask(widget.task);
-                      updateLastEdited();
                     });
                   },
                   items: status.dataStatus.map((list) {
@@ -189,7 +191,10 @@ class _TaskWidget extends State<TaskWidget> {
                     textAlign: TextAlign.center,
                     controller: timeController,
                     onChanged: (String value) async {
-                      updateLastEdited();
+                      setState(() {
+                        updateLastEdited();
+                      });
+
                       updateMoney(value);
                     },
                   ),
@@ -299,6 +304,7 @@ class _TaskWidget extends State<TaskWidget> {
           )));
 
   Future openAnnotationDialog() => showDialog(
+      barrierDismissible: false,
       context: context,
       builder: (context) => AlertDialog(
               content: Wrap(
@@ -348,6 +354,10 @@ class _TaskWidget extends State<TaskWidget> {
                   child: const Text("Save"),
                   onPressed: () {
                     widget.task.setAnnotation(descController.text);
+                    setState(() {
+                      updateLastEdited();
+                    });
+
                     Navigator.of(context).pop();
                   },
                 ),
