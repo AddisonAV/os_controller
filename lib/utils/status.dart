@@ -1,4 +1,5 @@
 import 'package:http/http.dart' as http;
+import 'package:os_controller/utils/StatusChangeNotifier.dart';
 import 'package:os_controller/utils/dataLoadEvent.dart';
 import 'dart:convert';
 import 'package:os_controller/utils/providers.dart';
@@ -16,6 +17,7 @@ class Status {
   }
 
   bool addStatus(String status) {
+    print(statusList);
     if (!statusList.contains(status)) {
       statusList.add(status);
       statusID[status] = statusList.length.toString();
@@ -24,7 +26,7 @@ class Status {
         "status": status,
       });
       getIt<EventBus>().fire(DataLoadEvent(true));
-
+      taskUpdater.updateTaskMap();
       //ADICIONAR OS METODOS HTTP PARA ADICIONAR UM NOVO STATUS
       return true;
     }

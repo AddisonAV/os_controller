@@ -1,150 +1,90 @@
-import 'dart:io';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:os_controller/ui/colors.dart';
 import 'package:os_controller/utils/StatusChangeNotifier.dart';
-import 'package:os_controller/utils/dataLoadEvent.dart';
 import 'package:os_controller/utils/task.dart';
 import 'package:os_controller/widgets/task_widget.dart';
-import 'package:os_controller/utils/providers.dart';
-import 'package:event_bus/event_bus.dart';
-import 'package:os_controller/utils/change_status_event.dart';
 import 'package:os_controller/utils/status.dart';
-import 'package:os_controller/utils/StatusChangeNotifier.dart';
 import 'package:os_controller/utils/upperCaseFormatter.dart';
+import 'package:expandable/expandable.dart';
 
 // ignore: non_constant_identifier_names
 bool initial_load = false;
 
+Widget createList(context, String title, Widget child, int size) {
+  return Padding(
+      padding: const EdgeInsets.only(left: 40, right: 40),
+      child: Container(
+          decoration: BoxDecoration(color: AppColor.expandableColor),
+          padding: const EdgeInsets.all(10),
+          child: ExpandableNotifier(
+            initialExpanded: false,
+            child: ExpandablePanel(
+              header: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(fontSize: 20),
+                    textAlign: TextAlign.left,
+                  ),
+                  Text(
+                    size.toString(),
+                    style: const TextStyle(fontSize: 18),
+                    textAlign: TextAlign.center,
+                  )
+                ],
+              ),
+              collapsed: Container(
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(color: AppColor.expandableColor),
+                child: const Padding(
+                  padding: EdgeInsetsDirectional.fromSTEB(0, 8, 0, 0),
+                  child: SizedBox(
+                    width: 0,
+                    height: 0,
+                  ),
+                ),
+              ),
+              expanded: child,
+              theme: const ExpandableThemeData(
+                  tapHeaderToExpand: true,
+                  tapBodyToExpand: false,
+                  tapBodyToCollapse: false,
+                  headerAlignment: ExpandablePanelHeaderAlignment.center,
+                  hasIcon: true,
+                  iconColor: Colors.white,
+                  expandIcon: Icons.arrow_downward_rounded,
+                  iconPlacement: ExpandablePanelIconPlacement.left),
+            ),
+          )));
+}
+
 Container tContainer(String title, Widget child) {
   return Container(
-    child: Container(
-      decoration: BoxDecoration(
-        border: Border.all(
-          color: Colors.blue,
-        ),
-        borderRadius: const BorderRadius.all(
-          Radius.circular(10.0),
-        ),
+    decoration: BoxDecoration(
+      border: Border.all(
+        color: Colors.blue,
       ),
-      child: child,
+      borderRadius: const BorderRadius.all(
+        Radius.circular(10.0),
+      ),
     ),
+    child: child,
   );
 }
 
-List<Widget> buildTaskList(Map<String, List<TaskWidget>> tasks) {
+List<Widget> buildTaskList(context, Map<String, List<TaskWidget>> tasks) {
   List<Widget> widgets = [];
 
   // ignore: non_constant_identifier_names
   for (String Status in status.statusList) {
-    if (tasks[Status] != null && tasks[Status]!.isNotEmpty) {
-      widgets.add(const SizedBox(height: 30));
-      widgets.add(
-        Container(
-          color: AppColor.primaryColor,
-          child: Text(
-            Status,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.blue,
-            ),
-          ),
-        ),
-      );
-      /*widgets.add(Center(
-          child: Row(children: const [
-        SizedBox(
-          child: Padding(
-            padding: EdgeInsets.only(left: 10),
-            child: Text(
-              "Task Name",
-              style: TextStyle(
-                color: Colors.blue,
-              ),
-            ),
-          ),
-        ),
-        Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(left: 10),
-              child: Text(
-                "Created At",
-                style: TextStyle(
-                  color: Colors.blue,
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Center(
-              child: Text(
-                "Last Edited",
-                style: TextStyle(
-                  color: Colors.blue,
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Center(
-              child: Text(
-                "Annotations",
-                style: TextStyle(
-                  color: Colors.blue,
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Center(
-              child: Text(
-                "Status",
-                style: TextStyle(
-                  color: Colors.blue,
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Center(
-              child: Text(
-                "Time Spent",
-                style: TextStyle(
-                  color: Colors.blue,
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Center(
-              child: Text(
-                "Cost",
-                style: TextStyle(
-                  color: Colors.blue,
-                ),
-              ),
-            ),
-          ),
-          Expanded(
-            child: Center(
-              child: Text(
-                "Delete Task",
-                style: TextStyle(
-                  color: Colors.blue,
-                ),
-              ),
-            ),
-          )
-      ])));*/
-      widgets.add(
-        tContainer(
-            Status,
-            Column(
-              children: tasks[Status]!,
-            )),
-      );
+    if (tasks[Status] != null) {
+      widgets.add(createList(context, Status, Column(children: tasks[Status]!),
+          tasks[Status]!.length));
+      widgets.add(const SizedBox(height: 10));
     }
   }
   return widgets;
@@ -168,49 +108,51 @@ class _HomeScreenState extends State<HomeScreen> {
     status.getAllStatus().then((value) => taskUpdater.createMap());
 
     return Scaffold(
-        backgroundColor: AppColor.primaryColor,
-        appBar: AppBar(
-            toolbarHeight: 70,
-            elevation: 50,
-            backgroundColor: AppColor.primaryColor,
-            centerTitle: true,
-            title: const Text("Ovo do breno"),
-            actions: [
-              IconButton(
-                padding: const EdgeInsets.only(right: 35, bottom: 5),
-                onPressed: () {
-                  openNewTaskDialog();
-                },
-                icon: const Icon(
-                  Icons.add_task_outlined,
-                  size: 45,
-                ),
-                hoverColor: Colors.transparent,
-                tooltip: "Add new Task",
+      backgroundColor: AppColor.primaryColor,
+      appBar: AppBar(
+          toolbarHeight: 70,
+          elevation: 50,
+          backgroundColor: AppColor.primaryColor,
+          centerTitle: true,
+          title: const Text(
+            "OS Controller",
+            style: TextStyle(fontFamily: "Oswald", fontSize: 30),
+          ),
+          actions: [
+            IconButton(
+              iconSize: 50,
+              padding: const EdgeInsets.only(right: 35, bottom: 5),
+              onPressed: () {
+                openNewTaskDialog();
+              },
+              icon: const Icon(Icons.add_circle_outline_rounded),
+              /*icon: const Image(
+                image: AssetImage('../data/icons/add_1.png'),
+              )*/
+              hoverColor: Colors.transparent,
+              tooltip: "Add new Task",
+            ),
+            /*IconButton(
+              padding: const EdgeInsets.only(right: 35, bottom: 5),
+              onPressed: () {
+                openNewStatusDialog();
+              },
+              icon: const Icon(
+                Icons.playlist_add_circle_outlined,
+                size: 45,
               ),
-              IconButton(
-                padding: const EdgeInsets.only(right: 35, bottom: 5),
-                onPressed: () {
-                  openNewStatusDialog();
-                },
-                icon: const Icon(
-                  Icons.playlist_add_circle_outlined,
-                  size: 45,
-                ),
-                hoverColor: Colors.transparent,
-                tooltip: "Add new Status",
-              )
-            ]),
-        body: SingleChildScrollView(
-            child: Padding(
-          padding:
-              const EdgeInsets.only(top: 5, bottom: 20, right: 200, left: 200),
-          child: ValueListenableBuilder(
+              hoverColor: Colors.transparent,
+              tooltip: "Add new Status",
+            )*/
+          ]),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(10),
+        child: ValueListenableBuilder(
             valueListenable: taskUpdater.tasksMap,
             builder: (context, Map<String, List<TaskWidget>> _tasks, child) =>
-                Column(children: buildTaskList(_tasks)),
-          ),
-        )));
+                Column(children: buildTaskList(context, _tasks))),
+      ),
+    );
   }
 
   Future openNewTaskDialog() => showDialog(
@@ -276,7 +218,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             Task task = Task(newOSController.text);
                             taskUpdater.addTask(task);
                             task.Save();
-                            taskUpdater.printTaskMap();
                             newOSController.clear();
                             Navigator.of(context).pop();
                           },

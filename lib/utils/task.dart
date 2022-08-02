@@ -10,7 +10,7 @@ class Task {
   bool isTaskEnabled = true;
   String status = "BACKLOG";
   late DateTime creationDate;
-  late DateTime lastEditDate;
+  late String lastEditDate;
   int time = 0;
   late String name;
   String annotations = "";
@@ -21,7 +21,10 @@ class Task {
   Task(this.name) {
     id = DateTime.now().millisecondsSinceEpoch;
     creationDate = DateTime.now();
-    lastEditDate = creationDate;
+    lastEditDate = DateFormat.yMMMd().format(creationDate) +
+        " - " +
+        DateFormat.Hm().format(creationDate);
+    ;
   }
 
   void Save() {
@@ -47,12 +50,8 @@ class Task {
     return money;
   }
 
-  DateTime getLastEditedDate() {
+  String getLastEditedDate() {
     return lastEditDate;
-  }
-
-  String getLastEditedDateFormatted() {
-    return '${lastEditDate.year}-${lastEditDate.month}-${lastEditDate.day}';
   }
 
   DateTime getCreationDate() {
@@ -61,10 +60,6 @@ class Task {
 
   String getCreationDateFormatted() {
     return DateFormat('yyyy-MM-dd').format(creationDate);
-  }
-
-  String getLastEditedDatetimeStr() {
-    return '${creationDate.year}-${creationDate.month}-${creationDate.day}';
   }
 
   String getCreationDateStr() {
@@ -97,7 +92,7 @@ class Task {
     taskConnection.update(this);
   }
 
-  void setLastEditedDate(DateTime newDate) {
+  void setLastEditedDate(String newDate) {
     lastEditDate = newDate;
     taskConnection.update(this);
   }
@@ -131,7 +126,7 @@ class Task {
     taskConnection.update(this);
   }
 
-  void setData(int id, int time, DateTime lastEditDate, DateTime creationDate,
+  void setData(int id, int time, String lastEditDate, DateTime creationDate,
       String name, String annotations, String newStatus) {
     this.id = id;
     this.name = name;
