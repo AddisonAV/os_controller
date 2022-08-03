@@ -17,16 +17,16 @@ import 'package:os_controller/utils/tasksLoadEvent.dart';
 //we can create more parameters if needed
 Container customContainer(Widget child,
     {EdgeInsetsGeometry padding = const EdgeInsets.all(15),
-    double width = 200,
+    double width = 300,
     double height = 80}) {
   return Container(
     padding: padding,
     decoration: BoxDecoration(
-      border: Border.all(color: AppColor.taskColor),
-      borderRadius: BorderRadius.all(
-        Radius.circular(1),
-      ),
-    ),
+        //border: Border.all(color: AppColor.taskColor),
+        //borderRadius: BorderRadius.all(
+        //Radius.circular(1),
+        //),
+        ),
     child: child,
   );
 }
@@ -41,20 +41,24 @@ class TaskWidget extends StatefulWidget {
 
 class _TaskWidget extends State<TaskWidget> {
   double borderRadius = 9;
+  bool firstLoad = true;
   late FocusNode focusNode;
   final TextEditingController moneyController = TextEditingController();
   final TextEditingController timeController = TextEditingController();
   final TextEditingController descController = TextEditingController();
   final TextEditingController nameController = TextEditingController();
   final TextEditingController lastEditedController = TextEditingController();
+  final TextEditingController createdAtController = TextEditingController();
 
   void initializeWidget() {
+    createdAtController.text = widget.task.getCreationDateStr();
     nameController.text = widget.task.name;
     timeController.text = widget.task.time.toString() + " H";
     moneyController.text =
         "R\$" + (widget.task.time * costPerHour).toString() + ".00";
     descController.text = widget.task.annotations;
     lastEditedController.text = widget.task.getLastEditedDate();
+    createdAtController.text = widget.task.getCreationDateFormatted();
   }
 
   int costPerHour = 20;
@@ -77,7 +81,11 @@ class _TaskWidget extends State<TaskWidget> {
 
   @override
   Widget build(BuildContext context) {
-    initializeWidget();
+    if (firstLoad) {
+      initializeWidget();
+      firstLoad = false;
+    }
+
     getIt<EventBus>().on<DataLoadEvent>().listen((event) {
       if (event.getEventResult()) {
         setState(() {});
@@ -102,9 +110,11 @@ class _TaskWidget extends State<TaskWidget> {
                     inputFormatters: [LengthLimitingTextInputFormatter(60)],
                     maxLines: null,
                     decoration: InputDecoration(
-                      border: InputBorder.none,
-                      hintText: "Task name",
-                      hintStyle: TextStyle(color: Colors.grey),
+                      border: OutlineInputBorder(),
+                      labelText: "Task Name",
+                      hintText: "Task Name",
+                      hintStyle:
+                          TextStyle(color: Color.fromARGB(255, 92, 92, 92)),
                     ),
                     style: TextStyle(fontSize: 15),
                     textAlign: TextAlign.center,
@@ -120,8 +130,15 @@ class _TaskWidget extends State<TaskWidget> {
           ),
           Expanded(
             child: customContainer(
-              Text(
-                widget.task.getCreationDateStr(),
+              TextField(
+                maxLines: null,
+                enabled: false,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: "Created at",
+                  hintStyle: TextStyle(color: Colors.grey),
+                ),
+                controller: createdAtController,
                 style: TextStyle(fontSize: 15),
                 textAlign: TextAlign.center,
               ),
@@ -129,8 +146,15 @@ class _TaskWidget extends State<TaskWidget> {
           ),
           Expanded(
             child: customContainer(
-              Text(
-                lastEditedController.text,
+              TextField(
+                maxLines: null,
+                enabled: false,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: "Last edited",
+                  hintStyle: TextStyle(color: Colors.grey),
+                ),
+                controller: lastEditedController,
                 style: TextStyle(fontSize: 15),
                 textAlign: TextAlign.center,
               ),
@@ -150,39 +174,52 @@ class _TaskWidget extends State<TaskWidget> {
           Padding(
               padding: EdgeInsets.all(10),
               child: SizedBox(
-                height: 50,
-                width: 100,
-                child: DropdownButton(
-                  value: widget.task.getStatus(),
-                  icon: const Icon(Icons.arrow_downward, size: 15),
-                  elevation: 20,
-                  style: TextStyle(color: Colors.white),
-                  underline: Container(
-                    height: 1,
-                    color: Color.fromARGB(255, 91, 32, 255),
-                  ),
-                  onChanged: (newValue) {
-                    setState(() {
-                      updateLastEdited();
-                      widget.task.setStatus(newValue as String);
-                      taskUpdater.updateTask(widget.task);
-                    });
-                  },
-                  items: status.dataStatus.map((list) {
-                    return DropdownMenuItem(
-                      value: list['status'],
-                      child: Text(list['status'].toString().split('.').last,
-                          style: TextStyle(fontSize: 13)),
-                    );
-                  }).toList(),
-                ),
-              )),
+                  height: 50,
+                  width: 120,
+                  child: InputDecorator(
+                    decoration: InputDecoration(
+                      labelText: 'Status',
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                    ),
+                    child: DropdownButton(
+                      value: widget.task.getStatus(),
+                      icon: const Icon(Icons.arrow_downward, size: 15),
+                      elevation: 20,
+                      style: TextStyle(color: Colors.white),
+                      underline: Container(
+                        height: 1,
+                        color: Colors.transparent,
+                      ),
+                      onChanged: (newValue) {
+                        setState(() {
+                          updateLastEdited();
+                          widget.task.setStatus(newValue as String);
+                          taskUpdater.updateTask(widget.task);
+                        });
+                      },
+                      items: status.dataStatus.map((list) {
+                        return DropdownMenuItem(
+                          value: list['status'],
+                          child: Text(list['status'].toString().split('.').last,
+                              style: TextStyle(fontSize: 13)),
+                        );
+                      }).toList(),
+                    ),
+                  ))),
           Expanded(
               child: customContainer(
                   TextField(
                     enabled: widget.task.isTaskEnabled,
                     maxLines: null,
-                    decoration: InputDecoration.collapsed(hintText: '0 H'),
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: "Time Spent",
+                      hintText: "0 H",
+                      hintStyle:
+                          TextStyle(color: Color.fromARGB(255, 92, 92, 92)),
+                    ),
                     style: TextStyle(fontSize: 15),
                     inputFormatters: [
                       CurrencyTextInputFormatter(
@@ -204,7 +241,12 @@ class _TaskWidget extends State<TaskWidget> {
                 TextField(
                   maxLines: null,
                   enabled: false,
-                  decoration: InputDecoration.collapsed(hintText: 'R\$ 0.00'),
+                  decoration: InputDecoration(
+                    hintText: 'R\$ 0.00',
+                    border: OutlineInputBorder(),
+                    labelText: "Cost",
+                    hintStyle: TextStyle(color: Colors.grey),
+                  ),
                   style: TextStyle(fontSize: 15),
                   textAlign: TextAlign.center,
                   controller: moneyController,
