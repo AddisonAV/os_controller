@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:os_controller/ui/colors.dart';
@@ -9,9 +7,6 @@ import 'package:os_controller/widgets/task_widget.dart';
 import 'package:os_controller/utils/status.dart';
 import 'package:os_controller/utils/upperCaseFormatter.dart';
 import 'package:expandable/expandable.dart';
-
-// ignore: non_constant_identifier_names
-bool initial_load = false;
 
 Widget createList(context, String title, Widget child, int size) {
   return Padding(
