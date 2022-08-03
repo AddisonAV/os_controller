@@ -1,10 +1,11 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:os_controller/utils/login_event.dart';
 import 'package:os_controller/utils/providers.dart';
 import 'package:event_bus/event_bus.dart';
 import 'package:http/http.dart' as http;
+
+late int userID;
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -12,7 +13,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreen extends State<LoginScreen> {
-  Future<bool> validadeLogin(String username, String password) async {
+  Future<bool> validateLogin(String username, String password) async {
     //await Future.delayed(const Duration(seconds: 1));
     final resp = await http.put(Uri.parse('http://localhost:9898/login'),
         headers: <String, String>{
@@ -23,7 +24,10 @@ class _LoginScreen extends State<LoginScreen> {
           "password": password,
         }));
 
-    if (resp.statusCode == 200 && resp.body == 'true') {
+    print(resp.body);
+    if (resp.statusCode == 200 && resp.body != '-1') {
+      userID = int.parse(resp.body);
+      print(userID);
       return true;
     } else {
       return false;
@@ -85,7 +89,7 @@ class _LoginScreen extends State<LoginScreen> {
             child: ElevatedButton(
               child: const Text('Login'),
               onPressed: () {
-                validadeLogin(usernameController.text, passwordController.text)
+                validateLogin(usernameController.text, passwordController.text)
                     .then((value) {
                   if (value) {
                     getIt<EventBus>().fire(LoginEvent(true));

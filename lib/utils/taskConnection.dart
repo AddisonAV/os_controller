@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:os_controller/screens/login_screen.dart';
 import 'package:os_controller/utils/providers.dart';
 import 'package:os_controller/utils/status.dart';
 import 'package:os_controller/utils/task.dart';
@@ -25,6 +26,7 @@ class TaskConnection {
         "lastEditDate": task.getLastEditedDate(),
         "time": task.getTime().toString(),
         "status": task.getStatusID(),
+        "userId": userID.toString(),
       }),
     );
   }
@@ -46,7 +48,15 @@ class TaskConnection {
   }
 
   Future getTasks() async {
-    final response = await http.get(Uri.parse('http://localhost:9898/tasks'));
+    final response = await http.put(
+      Uri.parse('http://localhost:9898/tasks'),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+      body: jsonEncode(<String, String>{
+        "userId": userID.toString(),
+      }),
+    );
 
     if (response.statusCode == 200) {
       var jsonData = json.decode(response.body);
@@ -61,6 +71,7 @@ class TaskConnection {
             aux['name'],
             aux['description'],
             status.findStatus(aux['status'].toString()));
+
         tasks.add(task);
       }
     } else {
