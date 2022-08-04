@@ -3,8 +3,6 @@ import 'package:intl/intl.dart';
 import 'package:os_controller/utils/status.dart' as statusConnec;
 import 'package:os_controller/utils/taskConnection.dart';
 
-//enum Status { BACKLOG, WORKING, FIXING, DONE, PAUSED, PAID }
-
 class Task {
   late int id;
   bool isTaskEnabled = true;
@@ -12,7 +10,7 @@ class Task {
   late DateTime creationDate;
   late String lastEditDate;
   int time = 0;
-  late String name;
+  late String name = "";
   String annotations = "";
   late double money = 0;
 
@@ -24,7 +22,6 @@ class Task {
     lastEditDate = DateFormat.yMMMd().format(creationDate) +
         " - " +
         DateFormat.Hm().format(creationDate);
-    ;
   }
 
   void Save() {

@@ -24,10 +24,8 @@ class _LoginScreen extends State<LoginScreen> {
           "password": password,
         }));
 
-    print(resp.body);
     if (resp.statusCode == 200 && resp.body != '-1') {
       userID = int.parse(resp.body);
-      print(userID);
       return true;
     } else {
       return false;

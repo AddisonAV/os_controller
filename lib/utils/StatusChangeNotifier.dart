@@ -20,9 +20,14 @@ class TaskUpdater extends ChangeNotifier {
   }
 
   void createMap() {
-    for (String stts in status.statusList) {
-      tasksMap.value[stts] = [];
-    }
+    tasksMap.value = {
+      "BACKLOG": [],
+      "WORKING": [],
+      "FIXING": [],
+      "DONE": [],
+      "PAUSED": [],
+      "PAID": [],
+    };
   }
 
   void updateTaskMap() {

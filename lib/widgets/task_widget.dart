@@ -121,10 +121,9 @@ class _TaskWidget extends State<TaskWidget> {
                     controller: nameController,
                     onChanged: (String value) async {
                       setState(() {
+                        widget.task.setName(value);
                         updateLastEdited();
                       });
-
-                      widget.task.setName(value);
                     }),
                 padding: EdgeInsets.all(0)),
           ),
